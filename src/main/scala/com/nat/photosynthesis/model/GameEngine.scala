@@ -3,7 +3,8 @@ package com.nat.photosynthesis.model
 sealed trait GameEngine
 
 case class GameEngineRegistrationState(
-  players: List[Player]
+  players: List[Player],
+  tokenStock: TokenStock = TokenStock(Nil, Nil, Nil, Nil)
 ) extends GameEngine {
   def addPlayer(player: Player): Either[String, GameEngineRegistrationState] =
     if(players.exists(_.plantType == player.plantType)) {
@@ -14,22 +15,26 @@ case class GameEngineRegistrationState(
       Right(copy(players = players :+ player))
     }
 
+  def setTokenStock(tokenStock: TokenStock) = copy(tokenStock = tokenStock)
+
   def startGame: Either[String, GameEngineSetupState] = {
     if(players.length <= 1) {
       Left("Cannot start game less than 2 players")
     } else {
       Right(
         GameEngineSetupState(
+          plantingTreePlayer = 0,
           playerBoards = players.map(_.initBoard),
           forestBlocks = Nil,
-          remainingTokens = TokenStock(Nil, Nil, Nil, Nil)
+          tokenStock = tokenStock
         ))
     }
   }
 }
 
 case class GameEngineSetupState(
+  plantingTreePlayer: Int,
   playerBoards: List[PlayerBoard],
   forestBlocks: List[ForestBlock],
-  remainingTokens: TokenStock
-)
+  tokenStock: TokenStock
+) extends GameEngine

@@ -54,6 +54,15 @@ class GameEngineSpec extends FreeSpec with Matchers
       }
     }
 
+    "setTokenStock" - {
+      "should be able to set TokenStock" in {
+        val tokenStock = TokenStock(Nil, Nil, Nil, List(TokenTierFour(1)))
+        onlyJohnGameEngineState
+          .setTokenStock(tokenStock) shouldBe
+        onlyJohnGameEngineState.copy(tokenStock =  tokenStock)
+      }
+    }
+
     "startGame" - {
       "should not be able to start when there is only 1 player" in {
         onlyJohnGameEngineState.startGame shouldBe Left("Cannot start game less than 2 players")
@@ -62,10 +71,25 @@ class GameEngineSpec extends FreeSpec with Matchers
       "should be able to start the game when there is 2 player" in {
         johnWithRoseGameEngine.startGame shouldBe Right(
           GameEngineSetupState(
+            plantingTreePlayer = 0,
             playerBoards = johnWithRoseGameEngine.players.map(_.initBoard),
             forestBlocks = Nil,
-            remainingTokens = TokenStock(Nil, Nil, Nil, Nil)
-          ))
+            tokenStock = TokenStock(Nil, Nil, Nil, Nil)
+          )
+        )
+      }
+
+      "should transfer TokenStock from Registration state" in {
+        val tokenStock = TokenStock(Nil, Nil, Nil, List(TokenTierOne(12)))
+        johnWithRoseGameEngine
+          .setTokenStock(tokenStock).startGame shouldBe Right(
+          GameEngineSetupState(
+            plantingTreePlayer = 0,
+            playerBoards = johnWithRoseGameEngine.players.map(_.initBoard),
+            forestBlocks = Nil,
+            tokenStock = tokenStock
+          )
+        )
       }
     }
   }
