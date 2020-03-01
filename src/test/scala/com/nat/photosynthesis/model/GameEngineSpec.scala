@@ -5,9 +5,9 @@ import org.scalatest.{Assertion, FreeSpec, Matchers}
 class GameEngineSpec extends FreeSpec with Matchers
 {
 
-  val johnAndRose =
-    Player(name = "John", plantType = Green) ::
-    Player(name = "Rose", plantType = Yellow) :: Nil
+  private val john: Player = Player(name = "John", plantType = Green)
+  private val rose: Player = Player(name = "Rose", plantType = Yellow)
+  val johnAndRose = john :: rose :: Nil
 
   "GameEngineRegistrationState" - {
     val emptyGameEngineState = GameEngineRegistrationState(players = Nil)
@@ -98,6 +98,13 @@ class GameEngineSpec extends FreeSpec with Matchers
       forestBlocks = Nil,
       tokenStock = TokenStock()
     )
+
+    "activePlayer" - {
+      "should work correctly" in {
+        nonPlayerPlaceTreeYet.activePlayer shouldBe john
+      }
+    }
+
     "placeTree" - {
       val boardLocation = BoardLocation(0, 3, 3)
       val smallTree = SmallTree(Green)
@@ -105,7 +112,7 @@ class GameEngineSpec extends FreeSpec with Matchers
       def verifySuccessAttributes(currentPlayerPos: Int, actionPlayer: Int, assertFn: GameEnginePlacingFirst2TreesState => Assertion): Assertion = {
         nonPlayerPlaceTreeYet
           .copy(plantingTreePlayer = currentPlayerPos)
-          .placeTree(actionPlayer, boardLocation, smallTree) match {
+          .placeTree(actionPlayer, boardLocation) match {
           case Right(ns) => ns match {
             case gs: GameEnginePlacingFirst2TreesState => assertFn(gs)
             case _ => assert(false)
@@ -116,7 +123,7 @@ class GameEngineSpec extends FreeSpec with Matchers
 
       "active player do the place" - {
 
-        "should have new location available in forestBlock" in {
+        "should have new location available in forestBlock and correct tree type" in {
           verifySuccessAttributes(0, 0, _.forestBlocks should contain(boardLocation.toForestBlock(smallTree)))
         }
 
@@ -132,7 +139,7 @@ class GameEngineSpec extends FreeSpec with Matchers
 
       "should not allow non-active player to plant the tree" in {
         nonPlayerPlaceTreeYet
-          .placeTree(1, boardLocation, smallTree) match {
+          .placeTree(1, boardLocation) match {
           case Left(msg) => msg shouldBe s"Not player 1 turn yet, currently player ${nonPlayerPlaceTreeYet.plantingTreePlayer}"
           case _ => assert(false)
         }
@@ -140,7 +147,7 @@ class GameEngineSpec extends FreeSpec with Matchers
 
       "should not allow place any plant on the non-edge location" in {
         nonPlayerPlaceTreeYet
-          .placeTree(0, BoardLocation(0, 0, 0), smallTree) match {
+          .placeTree(0, BoardLocation(0, 0, 0)) match {
           case Left(msg) => msg shouldBe s"Cannot place on location (0, 0, 0) since it is not edge location"
           case _ => assert(false)
         }
@@ -148,11 +155,15 @@ class GameEngineSpec extends FreeSpec with Matchers
 
       "should not allow to place on the same location" in {
         Right[String, GameEnginePlacingFirst2TreesState](nonPlayerPlaceTreeYet)
-          .flatMap(_.placeTree(0, boardLocation, smallTree))
-          .flatMap(_.placeTree(1, boardLocation, SmallTree(Blue))) match {
+          .flatMap(_.placeTree(0, boardLocation))
+          .flatMap(_.placeTree(1, boardLocation)) match {
           case Left(msg) => msg shouldBe "Unable to place to non empty location"
           case _ => assert(false)
         }
+      }
+
+      "should place only the relevant color" in {
+
       }
     }
 
