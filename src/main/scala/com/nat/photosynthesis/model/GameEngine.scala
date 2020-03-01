@@ -61,4 +61,29 @@ case class GameEnginePlacingFirst2TreesState(
   }
 
   def activePlayer = playerBoards(plantingTreePlayer).player
+
+  def startPlaying: Either[String, GameEnginePlaying] = {
+    if(forestBlocks.length == playerBoards.length * 2)
+      Right(GameEnginePlaying(
+        actionPlayer = 0,
+        startingPlayer = 0,
+        sunLocation = SunLocation0,
+        day = 0,
+        playerBoards = playerBoards,
+        forestBlocks = forestBlocks,
+        tokenStock = tokenStock
+      ))
+    else
+      Left("Some player need to place their small tree")
+  }
 }
+
+case class GameEnginePlaying(
+  actionPlayer: Int,
+  startingPlayer: Int,
+  sunLocation: SunLocation,
+  day: Int,
+  playerBoards: List[PlayerBoard],
+  forestBlocks: List[ForestBlock],
+  tokenStock: TokenStock
+)

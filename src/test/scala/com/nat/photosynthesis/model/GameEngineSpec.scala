@@ -161,15 +161,33 @@ class GameEngineSpec extends FreeSpec with Matchers
           case _ => assert(false)
         }
       }
-
-      "should place only the relevant color" in {
-
-      }
     }
 
     "startPlaying" - {
-      "should allow start playing if all players placed 2 trees" is pending
-      "should not allow start playing if all player are not finished place 2 trees yet" is pending
+      "should allow start playing if all players placed 2 trees" in {
+        nonPlayerPlaceTreeYet.startPlaying shouldBe Left("Some player need to place their small tree")
+      }
+      "should not allow start playing if all player are not finished place 2 trees yet" in {
+        val placedTreeGameState = Right[String, GameEnginePlacingFirst2TreesState](nonPlayerPlaceTreeYet)
+          .flatMap(_.placeTree(0, BoardLocation(0, 3, 3)))
+          .flatMap(_.placeTree(1, BoardLocation(3, 3, 0)))
+          .flatMap(_.placeTree(0, BoardLocation(-3, 3, 0)))
+          .flatMap(_.placeTree(1, BoardLocation(0, -3, -3)))
+
+        val extractedPlacedTreeGameState = placedTreeGameState.getOrElse(null)
+        placedTreeGameState
+          .flatMap(_.startPlaying) shouldBe Right(
+          GameEnginePlaying(
+            actionPlayer = 0,
+            startingPlayer = 0,
+            sunLocation = SunLocation0,
+            day = 0,
+            playerBoards = extractedPlacedTreeGameState.playerBoards,
+            forestBlocks = extractedPlacedTreeGameState.forestBlocks,
+            tokenStock = extractedPlacedTreeGameState.tokenStock
+          )
+        )
+      }
     }
   }
 }
