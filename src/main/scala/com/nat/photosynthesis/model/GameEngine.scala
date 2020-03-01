@@ -37,4 +37,15 @@ case class GameEnginePlacingFirst2TreesState(
   playerBoards: List[PlayerBoard],
   forestBlocks: List[ForestBlock],
   tokenStock: TokenStock
-) extends GameEngine
+) extends GameEngine {
+  def placeTree(playerNo: Int, boardLocation: BoardLocation, smallTree: SmallTree): Either[String, GameEnginePlacingFirst2TreesState] = {
+    if(playerNo == plantingTreePlayer) {
+      Right(copy(
+        plantingTreePlayer = (playerNo + 1) % (playerBoards.length),
+        forestBlocks = forestBlocks :+ boardLocation.toForestBlock(smallTree)
+      ))
+    } else {
+      Left("")
+    }
+  }
+}

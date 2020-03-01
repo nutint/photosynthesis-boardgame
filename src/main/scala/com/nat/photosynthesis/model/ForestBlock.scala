@@ -1,3 +1,6 @@
 package com.nat.photosynthesis.model
 
-case class ForestBlock()
+case class ForestBlock(
+  boardLocation: BoardLocation,
+  plantItem: PlantItem
+)

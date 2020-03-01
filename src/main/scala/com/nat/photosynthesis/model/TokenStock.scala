@@ -6,3 +6,8 @@ case class TokenStock(
   tier3: List[TokenTierThree],
   tier4: List[TokenTierFour]
 )
+
+case object TokenStock
+{
+  def apply(): TokenStock = TokenStock(Nil, Nil, Nil, Nil)
+}

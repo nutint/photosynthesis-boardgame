@@ -1,9 +1,15 @@
 package com.nat.photosynthesis.model
 
-import org.scalatest.{FreeSpec, Matchers}
+import com.nat.photosynthesis.model
+import org.scalatest.{Assertion, FreeSpec, Matchers}
 
 class GameEngineSpec extends FreeSpec with Matchers
 {
+
+
+  val johnAndRose =
+    Player(name = "John", plantType = Green) ::
+    Player(name = "Rose", plantType = Yellow) :: Nil
 
   "GameEngineRegistrationState" - {
     val emptyGameEngineState = GameEngineRegistrationState(players = Nil)
@@ -13,14 +19,9 @@ class GameEngineSpec extends FreeSpec with Matchers
         plantType = Green
       ) :: Nil
     )
+
     val johnWithRoseGameEngine = GameEngineRegistrationState(
-      players = Player(
-        name = "John",
-        plantType = Green
-      ) :: Player(
-        name = "Rose",
-        plantType = Yellow
-      ) :: Nil
+      players = johnAndRose
     )
 
     "addPlayer" - {
@@ -93,10 +94,47 @@ class GameEngineSpec extends FreeSpec with Matchers
 
   "GameEnginePlacingFirst2TreesState" - {
 
+    val nonPlayerPlaceTreeYet = GameEnginePlacingFirst2TreesState(
+      plantingTreePlayer = 0,
+      playerBoards = johnAndRose.map(_.initBoard),
+      forestBlocks = Nil,
+      tokenStock = TokenStock()
+    )
     "placeTree" - {
-      "should allow only active player to place the tree" is pending
+      val boardLocation = BoardLocation(0, 3, 3)
+      val smallTree = SmallTree(Green)
+
+      def verifySuccessAttributes(currentPlayerPos: Int, actionPlayer: Int, assertFn: GameEnginePlacingFirst2TreesState => Assertion): Assertion = {
+        nonPlayerPlaceTreeYet
+          .copy(plantingTreePlayer = currentPlayerPos)
+          .placeTree(actionPlayer, boardLocation, smallTree) match {
+          case Right(ns) => ns match {
+            case gs: GameEnginePlacingFirst2TreesState => assertFn(gs)
+            case _ => assert(false)
+          }
+          case _ => assert(false)
+        }
+      }
+
+      "active player do the place" - {
+
+        "should have new location available in forestBlock" in {
+          verifySuccessAttributes(0, 0, _.forestBlocks should contain(boardLocation.toForestBlock(smallTree)))
+        }
+
+        "should move to next player" in {
+          verifySuccessAttributes(0, 0, _.plantingTreePlayer shouldBe 1)
+        }
+
+        "should move to first player if the current player is the last one" in {
+          verifySuccessAttributes(1, 1, _.plantingTreePlayer shouldBe 0)
+        }
+
+      }
+
       "should move to the next player after a player place" is pending
       "should not allow non-active player to plant the tree" is pending
+      "should not allow place any plant on the non-edge location" is pending
     }
 
     "startPlaying" - {
