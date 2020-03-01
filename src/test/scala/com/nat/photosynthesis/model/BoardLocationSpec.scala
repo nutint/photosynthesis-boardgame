@@ -75,4 +75,48 @@ class BoardLocationSpec extends FreeSpec with Matchers {
     }
 
   }
+
+  "Position Check" - {
+
+    val location1 = BoardLocation(0, 0, 0)
+    val location2 = BoardLocation(0, 1, 1)
+    val location3 = BoardLocation(-1, 2, 3)
+
+    "isBehind" - {
+
+      "SunLocation0" - {
+        "should be true if location1 isBehind location2" in {
+          location1.isBehind(location2, SunLocation0) shouldBe true
+        }
+        "should be false if swap between location1 and location2" in {
+          location2.isBehind(location1, SunLocation0) shouldBe false
+        }
+        "should be false if not in the same line" in {
+          location1.isBehind(location3, SunLocation0) shouldBe false
+        }
+      }
+      "SunLocation3" - {
+        "should be true if location1 isBehind location2" in {
+          location1.isBehind(location2, SunLocation3) shouldBe false
+        }
+        "should be false if swap between location1 and location2" in {
+          location2.isBehind(location1, SunLocation3) shouldBe true
+        }
+        "should be false if not in the same line" in {
+          location1.isBehind(location3, SunLocation3) shouldBe false
+        }
+
+      }
+    }
+
+    "isSameLine" in {
+      location1.isSameLine(location2, SunLocation0) shouldBe true
+      location2.isSameLine(location1, SunLocation0) shouldBe true
+      location1.isSameLine(location3, SunLocation0) shouldBe false
+      location1.isSameLine(location2, SunLocation3) shouldBe true
+      location2.isSameLine(location1, SunLocation3) shouldBe true
+      location1.isSameLine(location3, SunLocation3) shouldBe false
+    }
+
+  }
 }

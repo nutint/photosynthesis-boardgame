@@ -12,4 +12,26 @@ case class BoardLocation(x: Int, y: Int, z: Int) {
       case _ => assert(false); BoardLocationTier1
     }
   }
+  def isBehind(rsh: BoardLocation, sunLocation: SunLocation): Boolean = {
+    sunLocation match {
+      case SunLocation0 =>
+        val BoardLocation(_, rhsY, _) = rsh
+        rhsY > y && isSameLine(rsh, sunLocation)
+      case SunLocation3 =>
+        val BoardLocation(_, rhsY, _) = rsh
+        rhsY < y && isSameLine(rsh, sunLocation)
+      case _ => false
+    }
+  }
+
+  def isSameLine(rhs: BoardLocation, sunLocation: SunLocation): Boolean = {
+    sunLocation match {
+      case SunLocation0 =>
+        val BoardLocation(_, myY, myZ) = this
+        val BoardLocation(_, rhsY, rhsZ) = rhs
+        rhsY - myY == rhsZ - myZ
+      case SunLocation3 => isSameLine(rhs, SunLocation0)
+      case _ => false
+    }
+  }
 }
