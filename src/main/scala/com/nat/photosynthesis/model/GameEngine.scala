@@ -17,12 +17,12 @@ case class GameEngineRegistrationState(
 
   def setTokenStock(tokenStock: TokenStock) = copy(tokenStock = tokenStock)
 
-  def startGame: Either[String, GameEngineSetupState] = {
+  def startGame: Either[String, GameEnginePlacingFirst2TreesState] = {
     if(players.length <= 1) {
       Left("Cannot start game less than 2 players")
     } else {
       Right(
-        GameEngineSetupState(
+        GameEnginePlacingFirst2TreesState(
           plantingTreePlayer = 0,
           playerBoards = players.map(_.initBoard),
           forestBlocks = Nil,
@@ -32,7 +32,7 @@ case class GameEngineRegistrationState(
   }
 }
 
-case class GameEngineSetupState(
+case class GameEnginePlacingFirst2TreesState(
   plantingTreePlayer: Int,
   playerBoards: List[PlayerBoard],
   forestBlocks: List[ForestBlock],

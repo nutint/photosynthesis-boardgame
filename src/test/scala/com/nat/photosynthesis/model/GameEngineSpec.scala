@@ -4,9 +4,6 @@ import org.scalatest.{FreeSpec, Matchers}
 
 class GameEngineSpec extends FreeSpec with Matchers
 {
-  "should pass" in {
-    true shouldBe true
-  }
 
   "GameEngineRegistrationState" - {
     val emptyGameEngineState = GameEngineRegistrationState(players = Nil)
@@ -70,7 +67,7 @@ class GameEngineSpec extends FreeSpec with Matchers
 
       "should be able to start the game when there is 2 player" in {
         johnWithRoseGameEngine.startGame shouldBe Right(
-          GameEngineSetupState(
+          GameEnginePlacingFirst2TreesState(
             plantingTreePlayer = 0,
             playerBoards = johnWithRoseGameEngine.players.map(_.initBoard),
             forestBlocks = Nil,
@@ -83,7 +80,7 @@ class GameEngineSpec extends FreeSpec with Matchers
         val tokenStock = TokenStock(Nil, Nil, Nil, List(TokenTierFour(12)))
         johnWithRoseGameEngine
           .setTokenStock(tokenStock).startGame shouldBe Right(
-          GameEngineSetupState(
+          GameEnginePlacingFirst2TreesState(
             plantingTreePlayer = 0,
             playerBoards = johnWithRoseGameEngine.players.map(_.initBoard),
             forestBlocks = Nil,
@@ -91,6 +88,20 @@ class GameEngineSpec extends FreeSpec with Matchers
           )
         )
       }
+    }
+  }
+
+  "GameEnginePlacingFirst2TreesState" - {
+
+    "placeTree" - {
+      "should allow only active player to place the tree" is pending
+      "should move to the next player after a player place" is pending
+      "should not allow non-active player to plant the tree" is pending
+    }
+
+    "startPlaying" - {
+      "should allow start playing if all players placed 2 trees" is pending
+      "should not allow start playing if all player are not finished place 2 trees yet" is pending
     }
   }
 }
