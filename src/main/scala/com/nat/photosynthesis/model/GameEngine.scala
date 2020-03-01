@@ -41,12 +41,17 @@ case class GameEnginePlacingFirst2TreesState(
   def placeTree(playerNo: Int, boardLocation: BoardLocation, smallTree: SmallTree): Either[String, GameEnginePlacingFirst2TreesState] = {
     if(playerNo == plantingTreePlayer) {
       if(boardLocation.isEdgeLocation)
-        Right(copy(
-          plantingTreePlayer = (playerNo + 1) % (playerBoards.length),
-          forestBlocks = forestBlocks :+ boardLocation.toForestBlock(smallTree)
-        ))
-      else
-        Left(s"Cannot place on location (0, 0, 0) since it is not edge location")
+        if(forestBlocks.exists(_.boardLocation == boardLocation))
+          Left("Unable to place to non empty location")
+        else
+          Right(copy(
+            plantingTreePlayer = (playerNo + 1) % (playerBoards.length),
+            forestBlocks = forestBlocks :+ boardLocation.toForestBlock(smallTree)
+          ))
+      else {
+        val BoardLocation(x, y, z) = boardLocation
+        Left(s"Cannot place on location ($x, $y, $z) since it is not edge location")
+      }
     } else {
       Left(s"Not player $playerNo turn yet, currently player $plantingTreePlayer")
     }

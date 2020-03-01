@@ -1,11 +1,9 @@
 package com.nat.photosynthesis.model
 
-import com.nat.photosynthesis.model
 import org.scalatest.{Assertion, FreeSpec, Matchers}
 
 class GameEngineSpec extends FreeSpec with Matchers
 {
-
 
   val johnAndRose =
     Player(name = "John", plantType = Green) ::
@@ -144,6 +142,15 @@ class GameEngineSpec extends FreeSpec with Matchers
         nonPlayerPlaceTreeYet
           .placeTree(0, BoardLocation(0, 0, 0), smallTree) match {
           case Left(msg) => msg shouldBe s"Cannot place on location (0, 0, 0) since it is not edge location"
+          case _ => assert(false)
+        }
+      }
+
+      "should not allow to place on the same location" in {
+        Right[String, GameEnginePlacingFirst2TreesState](nonPlayerPlaceTreeYet)
+          .flatMap(_.placeTree(0, boardLocation, smallTree))
+          .flatMap(_.placeTree(1, boardLocation, SmallTree(Blue))) match {
+          case Left(msg) => msg shouldBe "Unable to place to non empty location"
           case _ => assert(false)
         }
       }
