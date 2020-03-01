@@ -10,7 +10,7 @@ case class Player(
     0,
     List(
       List(Seed(plantType), Seed(plantType)),
-      List(SmallTree(plantType), SmallTree(plantType), SmallTree(plantType), SmallTree(plantType)),
+      List(SmallTree(plantType), SmallTree(plantType)),
       List(MediumTree(plantType))
     ).flatten,
     PlantStore(

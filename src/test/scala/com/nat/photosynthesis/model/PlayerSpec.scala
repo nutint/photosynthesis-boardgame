@@ -14,7 +14,7 @@ class PlayerSpec extends FreeSpec with Matchers {
           0,
           List(
             List(Seed(Green), Seed(Green)),
-            List(SmallTree(Green), SmallTree(Green), SmallTree(Green), SmallTree(Green)),
+            List(SmallTree(Green), SmallTree(Green)),
             List(MediumTree(Green))
           ).flatten,
           PlantStore(
