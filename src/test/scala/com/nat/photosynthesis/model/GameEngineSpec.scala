@@ -132,9 +132,21 @@ class GameEngineSpec extends FreeSpec with Matchers
 
       }
 
-      "should move to the next player after a player place" is pending
-      "should not allow non-active player to plant the tree" is pending
-      "should not allow place any plant on the non-edge location" is pending
+      "should not allow non-active player to plant the tree" in {
+        nonPlayerPlaceTreeYet
+          .placeTree(1, boardLocation, smallTree) match {
+          case Left(msg) => msg shouldBe s"Not player 1 turn yet, currently player ${nonPlayerPlaceTreeYet.plantingTreePlayer}"
+          case _ => assert(false)
+        }
+      }
+
+      "should not allow place any plant on the non-edge location" in {
+        nonPlayerPlaceTreeYet
+          .placeTree(0, BoardLocation(0, 0, 0), smallTree) match {
+          case Left(msg) => msg shouldBe s"Cannot place on location (0, 0, 0) since it is not edge location"
+          case _ => assert(false)
+        }
+      }
     }
 
     "startPlaying" - {
