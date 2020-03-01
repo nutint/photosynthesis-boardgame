@@ -80,7 +80,7 @@ class GameEngineSpec extends FreeSpec with Matchers
       }
 
       "should transfer TokenStock from Registration state" in {
-        val tokenStock = TokenStock(Nil, Nil, Nil, List(TokenTierOne(12)))
+        val tokenStock = TokenStock(Nil, Nil, Nil, List(TokenTierFour(12)))
         johnWithRoseGameEngine
           .setTokenStock(tokenStock).startGame shouldBe Right(
           GameEngineSetupState(
