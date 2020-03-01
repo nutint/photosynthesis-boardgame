@@ -13,25 +13,23 @@ case class BoardLocation(x: Int, y: Int, z: Int) {
     }
   }
   def isBehind(rsh: BoardLocation, sunLocation: SunLocation): Boolean = {
-    sunLocation match {
-      case SunLocation0 =>
-        val BoardLocation(_, rhsY, _) = rsh
-        rhsY > y && isSameLine(rsh, sunLocation)
-      case SunLocation3 =>
-        val BoardLocation(_, rhsY, _) = rsh
-        rhsY < y && isSameLine(rsh, sunLocation)
-      case _ => false
-    }
+    val BoardLocation(rhsX, rhsY, rhsZ) = rsh
+    (sunLocation match {
+      case SunLocation0 => rhsY > y
+      case SunLocation3 => rhsY < y
+      case SunLocation1 => rhsX > x
+      case SunLocation4 => rhsX < x
+      case SunLocation2 => rhsZ > z
+      case SunLocation5 => rhsZ < z
+    }) && isSameLine(rsh, sunLocation)
   }
 
   def isSameLine(rhs: BoardLocation, sunLocation: SunLocation): Boolean = {
+    val BoardLocation(rhsX, rhsY, rhsZ) = rhs
     sunLocation match {
-      case SunLocation0 =>
-        val BoardLocation(_, myY, myZ) = this
-        val BoardLocation(_, rhsY, rhsZ) = rhs
-        rhsY - myY == rhsZ - myZ
-      case SunLocation3 => isSameLine(rhs, SunLocation0)
-      case _ => false
+      case SunLocation0 | SunLocation3 => rhsX == x
+      case SunLocation1 | SunLocation4 => rhsY == y
+      case SunLocation2 | SunLocation5 => rhsZ == z
     }
   }
 }
