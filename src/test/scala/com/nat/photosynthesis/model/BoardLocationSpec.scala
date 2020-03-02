@@ -119,4 +119,32 @@ class BoardLocationSpec extends FreeSpec with Matchers {
     }
 
   }
+
+  "getDistance" - {
+
+    "should works by the following examples" in {
+      val examples =
+        Table(
+          ("firstLocation", "secondLocation", "sunLocation",  "expectedResult"),
+          ((0, 3, 3),       (0, 3, 3),       SunLocation0,    Same),
+          ((0, 3, 3),       (0, 2, 2),       SunLocation0,    Front(1)),
+          ((0, 2, 2),       (0, 3, 3),       SunLocation0,    Rear(1)),
+          ((0, 3, 3),       (0, 2, 2),       SunLocation3,    Rear(1)),
+          ((0, 2, 2),       (0, 3, 3),       SunLocation3,    Front(1)),
+          ((-1, 1, 2),      (1, 1, 0),       SunLocation1,    Front(2)),
+          ((1, 1, 0),       (-1, 1, 2),      SunLocation1,    Rear(2)),
+          ((-1, 1, 2),      (1, 1, 0),       SunLocation4,    Rear(2)),
+          ((1, 1, 0),       (-1, 1, 2),      SunLocation4,    Front(2)),
+          ((0, -3, -3),     (3, 0, -3),      SunLocation2,    Front(3)),
+          ((3, 0, -3),      (0, -3, -3),     SunLocation2,    Rear(3)),
+          ((0, -3, -3),     (3, 0, -3),      SunLocation5,    Rear(3)),
+          ((3, 0, -3),      (0, -3, -3),     SunLocation5,    Front(3)),
+        )
+
+      forAll(examples) { (firstLocation, secondLocation, sunLocation, expectedResult) =>
+        BoardLocation(firstLocation)
+          .getDistance(BoardLocation(secondLocation), sunLocation) shouldBe expectedResult
+      }
+    }
+  }
 }

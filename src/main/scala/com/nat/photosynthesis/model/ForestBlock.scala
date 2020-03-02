@@ -9,18 +9,23 @@ case class ForestBlock(
     else 0
   }
 
-//  def calculateScore2(sunLocation0: SunLocation, forestBlocks: List[ForestBlock]): Int = {
-//    case SunLocation0 => forestBlocks.filter { forestBlocks =>
-//      val BoardLocation(x, y, z) = forestBlocks.boardLocation
-//      val BoardLocation(myX, myY, myZ) = boardLocation
-//
-//      val aheadPosDiff = -1
-//      val diffY = myY - y
-//      val diffZ = myZ - z
-//      if(diffY == diffZ && diffZ > 0) {
-//
-//      }
-//    }
-//  }
+  def calculateScoreV2(sunLocation: SunLocation, forestBlocks: List[ForestBlock]): Int = {
+    0
+  }
 
+  def isUnderShadowOf(rhs: ForestBlock, sunLocation: SunLocation): Either[String, Boolean] = {
+    if(boardLocation == rhs.boardLocation) Left("Same Location")
+    else {
+      val isSameLine = boardLocation.isSameLine(rhs.boardLocation, sunLocation)
+      if(!isSameLine) Right(false)
+      else {
+        Right(plantItem.height < rhs.plantItem.height)
+      }
+    }
+  }
+
+}
+
+object ForestBlock {
+  def apply(x: Int, y: Int, z: Int, plantItem: PlantItem): ForestBlock = ForestBlock(BoardLocation(x, y, z), plantItem)
 }

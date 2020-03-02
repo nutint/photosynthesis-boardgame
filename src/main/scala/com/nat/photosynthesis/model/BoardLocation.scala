@@ -9,9 +9,9 @@ case class BoardLocation(x: Int, y: Int, z: Int) {
       case 8 | 6 => BoardLocationTier2
       case 2 => BoardLocationTier3
       case 0 => BoardLocationTier4
-      case _ => assert(false); BoardLocationTier1
     }
   }
+
   def isBehind(rsh: BoardLocation, sunLocation: SunLocation): Boolean = {
     val BoardLocation(rhsX, rhsY, rhsZ) = rsh
     (sunLocation match {
@@ -32,4 +32,31 @@ case class BoardLocation(x: Int, y: Int, z: Int) {
       case SunLocation2 | SunLocation5 => rhsZ == z
     }
   }
+
+  def getDistance(boardLocation: BoardLocation, sunLocation: SunLocation): Distance = {
+    if(boardLocation == this) Same
+    else if(!isSameLine(boardLocation, sunLocation)) DifferentLine
+    else {
+      val BoardLocation(rhsX, rhsY, rhsZ) = boardLocation
+      sunLocation match {
+        case SunLocation0 => toDistance(y - rhsY)
+        case SunLocation3 => toDistance(rhsY - y)
+        case SunLocation1 => toDistance(z - rhsZ)
+        case SunLocation4 => toDistance(rhsZ - z)
+        case SunLocation2 => toDistance(rhsX - x)
+        case SunLocation5 => toDistance(x - rhsX)
+      }
+    }
+  }
+
+  private def toDistance(distance: Int): SameLineDistance =
+    distance match {
+      case d if d > 0 => Front(d)
+      case d if d < 0 => Rear(-d)
+      case _ => Same
+    }
+}
+
+object BoardLocation {
+  def apply(tup: (Int, Int, Int)): BoardLocation = BoardLocation(tup._1, tup._2, tup._3)
 }
