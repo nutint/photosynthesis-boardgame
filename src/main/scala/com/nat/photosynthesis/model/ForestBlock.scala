@@ -19,7 +19,15 @@ case class ForestBlock(
       val isSameLine = boardLocation.isSameLine(rhs.boardLocation, sunLocation)
       if(!isSameLine) Right(false)
       else {
-        Right(plantItem.height < rhs.plantItem.height)
+        val distance = boardLocation.getDistance(rhs.boardLocation, sunLocation)
+        distance match {
+          case Rear(x) => {
+            val shadowCovered = x <= rhs.plantItem.height
+            val shorterOrEqual = plantItem.height <= rhs.plantItem.height
+            Right(shadowCovered && shorterOrEqual)
+          }
+          case _ => Right(false)
+        }
       }
     }
   }

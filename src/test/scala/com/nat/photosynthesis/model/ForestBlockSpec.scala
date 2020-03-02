@@ -43,7 +43,11 @@ class ForestBlockSpec extends FreeSpec with Matchers {
         Table(
           ("firstPlant",                           "secondPlant",                         "expectedResult"),
           (ForestBlock(0, 1, 1, SmallTree(Green)), ForestBlock(0, 3, 3, SmallTree(Green)), Right(false)),
-          (ForestBlock(0, 2, 2, SmallTree(Green)), ForestBlock(0, 3, 3, SmallTree(Green)), Right(true))
+          (ForestBlock(0, 2, 2, SmallTree(Green)), ForestBlock(0, 3, 3, SmallTree(Green)), Right(true)),
+          (ForestBlock(0, 2, 2, SmallTree(Green)), ForestBlock(0, 4, 4, SmallTree(Green)), Right(false)),
+          (ForestBlock(0, 2, 2, MediumTree(Green)), ForestBlock(0, 4, 4, SmallTree(Green)), Right(false)),
+          (ForestBlock(0, 0, 0, SmallTree(Green)), ForestBlock(0, 3, 3, LargeTree(Green)), Right(true)),
+          (ForestBlock(0, -1, -1, SmallTree(Green)), ForestBlock(0, 3, 3, LargeTree(Green)), Right(false))
         )
       forAll(examples) { (firstPlant, secondPlant, expectedResult) =>
         firstPlant.isUnderShadowOf(secondPlant, SunLocation0) shouldBe expectedResult
