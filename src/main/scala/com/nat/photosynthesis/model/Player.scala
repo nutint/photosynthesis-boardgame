@@ -4,7 +4,7 @@ case class Player(
   name: String,
   plantType: PlantType
 ) {
-  def initBoard = PlayerBoard(
+  def initBoard: PlayerBoard = PlayerBoard(
     player = copy(),
     Nil,
     0,

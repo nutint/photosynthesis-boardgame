@@ -15,7 +15,7 @@ case class GameEngineRegistrationState(
       Right(copy(players = players :+ player))
     }
 
-  def setTokenStock(tokenStock: TokenStock) = copy(tokenStock = tokenStock)
+  def setTokenStock(tokenStock: TokenStock): GameEngineRegistrationState = copy(tokenStock = tokenStock)
 
   def startGame: Either[String, GameEnginePlacingFirst2TreesState] = {
     if(players.length <= 1) {
@@ -45,7 +45,7 @@ case class GameEnginePlacingFirst2TreesState(
           Left("Unable to place to non empty location")
         else {
           Right(copy(
-            plantingTreePlayer = (playerNo + 1) % (playerBoards.length),
+            plantingTreePlayer = (playerNo + 1) % playerBoards.length,
             forestBlocks = forestBlocks :+ boardLocation.toForestBlock(
               SmallTree(activePlayer.plantType)
             )
@@ -60,7 +60,7 @@ case class GameEnginePlacingFirst2TreesState(
     }
   }
 
-  def activePlayer = playerBoards(plantingTreePlayer).player
+  def activePlayer: Player = playerBoards(plantingTreePlayer).player
 
   def startPlaying: Either[String, GameEnginePlaying] = {
     if(forestBlocks.length >= playerBoards.length * 2) {

@@ -5,12 +5,11 @@ case class ForestBlock(
   plantItem: PlantItem
 ) {
   def calculateScore(sunLocation: SunLocation, forestBlocks: List[ForestBlock]): Int = {
-    forestBlocks
-      .filter(_.boardLocation.isSameLine(this.boardLocation, sunLocation))
-      .forall(fb => isUnderShadowOf(fb, sunLocation) == Right(true)) match {
-      case true => 0
-      case false => plantItem.score
-    }
+    if (
+      forestBlocks
+        .filter(_.boardLocation.isSameLine(this.boardLocation, sunLocation))
+        .forall(fb => isUnderShadowOf(fb, sunLocation) == Right(true))
+    ) 0 else plantItem.score
   }
 
   def isUnderShadowOf(rhs: ForestBlock, sunLocation: SunLocation): Either[String, Boolean] = {

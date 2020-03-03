@@ -1,7 +1,7 @@
 package com.nat.photosynthesis.model
 
 case class BoardLocation(x: Int, y: Int, z: Int) {
-  def toForestBlock(plantItem: PlantItem) = ForestBlock(this, plantItem)
+  def toForestBlock(plantItem: PlantItem): ForestBlock = ForestBlock(this, plantItem)
   def isEdgeLocation: Boolean = getBoardLocationTier == BoardLocationTier1
   def getBoardLocationTier: BoardLocationTier = {
     List(x, y, z).foldLeft(0) { (acc, elem) => acc + (elem * elem)} match {

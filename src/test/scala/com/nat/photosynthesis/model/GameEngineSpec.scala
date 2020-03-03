@@ -7,7 +7,7 @@ class GameEngineSpec extends FreeSpec with Matchers
 
   private val john: Player = Player(name = "John", plantType = Green)
   private val rose: Player = Player(name = "Rose", plantType = Yellow)
-  val johnAndRose = john :: rose :: Nil
+  val johnAndRose: List[Player] = john :: rose :: Nil
 
   "GameEngineRegistrationState" - {
     val emptyGameEngineState = GameEngineRegistrationState(players = Nil)
