@@ -44,4 +44,28 @@ class PlantItemSpec extends FreeSpec with Matchers {
       LargeTree(Green).height shouldBe 3
     }
   }
+
+  "grow" - {
+    "should be cooled down after grow" in {
+      Seed(Green).grow shouldBe CooledDownSmallTree(Green)
+      SmallTree(Green).grow shouldBe CooledDownMediumTree(Green)
+      MediumTree(Green).grow shouldBe CooledDownLargeTree(Green)
+    }
+  }
+
+  "seed" - {
+    "should be cooled down after seed" in {
+      SmallTree(Green).seed shouldBe CooledDownSmallTree(Green)
+      MediumTree(Green).seed shouldBe CooledDownMediumTree(Green)
+      LargeTree(Green).seed shouldBe CooledDownLargeTree(Green)
+    }
+  }
+
+  "reset" - {
+    "should be reset to normal" in {
+      CooledDownSmallTree(Green).reset shouldBe SmallTree(Green)
+      CooledDownMediumTree(Green).reset shouldBe MediumTree(Green)
+      CooledDownLargeTree(Green).reset shouldBe LargeTree(Green)
+    }
+  }
 }
