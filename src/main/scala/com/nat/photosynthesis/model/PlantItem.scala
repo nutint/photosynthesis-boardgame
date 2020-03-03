@@ -11,6 +11,7 @@ sealed trait SeedAble extends PlantItem {
 }
 sealed trait GrowAble extends PlantItem {
   def grow: CooledDownPlantItem
+  def growCost: Int
 }
 sealed trait CooledDownPlantItem extends PlantItem {
   def reset: ReadyPlantItem
@@ -22,6 +23,7 @@ case class Seed(plantType: PlantType) extends ReadyPlantItem with GrowAble {
   override def score: Int = 0
   override def height: Int = 0
   override def grow: CooledDownPlantItem = CooledDownSmallTree(plantType)
+  override def growCost: Int = 1
 }
 
 case class CooledDownSmallTree(plantType: PlantType) extends CooledDownPlantItem {
@@ -33,6 +35,7 @@ case class SmallTree(plantType: PlantType) extends ReadyPlantItem with GrowAble 
   override def score: Int = 1
   override def height: Int = 1
   override def grow: CooledDownPlantItem = CooledDownMediumTree(plantType)
+  override def growCost: Int = 2
   override def seed: CooledDownPlantItem = CooledDownSmallTree(plantType)
 }
 
@@ -45,6 +48,7 @@ case class MediumTree(plantType: PlantType) extends ReadyPlantItem with GrowAble
   override def score: Int = 2
   override def height: Int = 2
   override def grow: CooledDownPlantItem = CooledDownLargeTree(plantType)
+  override def growCost: Int = 3
   override def seed: CooledDownPlantItem = CooledDownMediumTree(plantType)
 }
 
@@ -57,4 +61,5 @@ case class LargeTree(plantType: PlantType) extends ReadyPlantItem with SeedAble 
   override def score: Int = 3
   override def height: Int = 3
   override def seed: CooledDownPlantItem = CooledDownLargeTree(plantType)
+  def shopCost: Int = 4
 }
