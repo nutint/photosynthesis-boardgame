@@ -126,6 +126,33 @@ case class GameEnginePlaying(
         day = calculatedDay
       )
   }
+
+  def playerSeedPlant(player: Player, motherLocation: BoardLocation, seedLocation: BoardLocation): Either[String,GameEnginePlaying] = {
+    val sunLocations = List(SunLocation0, SunLocation1, SunLocation2)
+    if(!playerBoards.exists(_.player == player)) {
+      Left("Unable to seed: Player not found")
+    } else if (forestBlocks.exists(_.boardLocation == seedLocation)) {
+      Left("Unable to seed: Target location is not empty")
+    } else if (!sunLocations.exists(sl => motherLocation.isSameLine(seedLocation, sl))) {
+      Left("Unable to seed: Not the same line")
+    } else {
+      forestBlocks
+        .find(fb => fb.boardLocation == motherLocation)
+        .map {
+          case ForestBlock(_, plantItem) if plantItem.plantType == player.plantType => plantItem match {
+            case _: CooledDownPlantItem => Left("Unable to seed: Plant is in cool down")
+            case sa: SeedAble =>
+              val updatedForestBlocks = forestBlocks.map {
+                case fb @ ForestBlock(bl, pi) if bl == motherLocation && pi.plantType == player.plantType => fb.copy(plantItem = sa.seed)
+                case a => a
+              }
+              Right(copy(forestBlocks = updatedForestBlocks :+ ForestBlock(seedLocation, Seed(player.plantType))))
+          }
+          case ForestBlock(_, plantItem) if plantItem.plantType != player.plantType => Left("Unable to seed: Not player's plant")
+        }
+        .getOrElse(Left("Unable to seed: Plant not found"))
+    }
+  }
 }
 
 case class GameEngineOver(
