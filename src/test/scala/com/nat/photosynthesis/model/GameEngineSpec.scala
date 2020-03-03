@@ -219,4 +219,43 @@ class GameEngineSpec extends FreeSpec with Matchers
       }
     }
   }
+
+  "GameEnginePlaying" - {
+    "passNextPlayer" - {
+      "should remain player token at the same player and make next player actionable" is pending
+      "should move player token, move sun, and set next player as first player of next round" in pending
+      "should end the round when the sun come back to the starting point" is pending
+      "should end the game if the sun come back to the starting point and there is the last round token remove from the board" is pending
+    }
+    "grow" - {
+      "should fail if the plant is already done the action seed" is pending
+      "should fail if the plant is already done the action grow" is pending
+      "should fail if there is no available bigger tree in the stock" is pending
+      "should fail if there is available bigger tree but not enough sun" is pending
+      "should success if there is enough sun, have available bigger tree" is pending
+      "should place back replaced tree/seed in the top most available space" is pending
+      "should discard replaced tree/seed if there is no available space" is pending
+    }
+    "seed" - {
+      "should fail if the plant is already done the action seed" is pending
+      "should fail if the plant is already done the action grow" is pending
+      "should fail if the location is not the same line in any direction" is pending
+      "should success if the location is the same line and in seeding range" is pending
+    }
+    "buyTree" - {
+      "should fail if there is no available tree/seed in the player board" is pending
+      "should fail if there is available tree/seed in the player board but not enough sun" is pending
+      "should success if there is enough sun, and available tree in the player's board" is pending
+    }
+    "smartMove" - {
+      "should fail if there is no available tree/seed in stock, and no available tree/seed in player board" is pending
+      "should fail if there is no available tree/seed in stock, and not enough sun to buy" is pending
+      "should fail if there is no available tree/seed in stock, enough sun to buy, available tree/seed in player board but not enough sun to upgrade" is pending
+      "should success and discard the replaced tree/seed if there is no available tree/seed in stock, enough sun to buy, available tree/seed in player board, and enough sun to upgrade" is pending
+      "should success and place back tree/seed in to the top most available player board space if there is no available tree/seed in stock, enough sun to buy, available tree/seed in player board, and enought sun to upgrade" is pending
+      "should fail if there is available tree/seed in stock but not enough sun to upgrade" is pending
+      "should success and discard the replaced tree/seed if there is no available space in player board" is pending
+      "should success and place back tree/seed in to the top most available player board space if available" is pending
+    }
+  }
 }
