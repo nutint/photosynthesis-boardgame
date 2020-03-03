@@ -320,6 +320,46 @@ class GameEngineSpec extends FreeSpec with Matchers
           .copy(forestBlocks = forestBlocks, playerBoards = playerBoards)
           .playerSeedPlant(john, motherLocation, seedLocation) shouldBe Left("Unable to seed: Plant is in cool down")
       }
+      "should fail if the mother plant is seed" in {
+        val john = Player("John", Blue)
+        val forestBlocks = List(ForestBlock(1, 1, 0, Seed(Blue)))
+        val playerBoards = List(john.initBoard)
+        val motherLocation = BoardLocation(1, 1, 0)
+        val seedLocation = BoardLocation(0, 0, 0)
+        initialState
+          .copy(forestBlocks = forestBlocks, playerBoards = playerBoards)
+          .playerSeedPlant(john, motherLocation, seedLocation) shouldBe Left("Unable to seed: Cannot seed")
+      }
+      "should fail if the location if out of range" in {
+        val john = Player("John", Blue)
+        val forestBlocks = List(ForestBlock(1, 1, 0, MediumTree(Blue)))
+        val playerBoards = List(john.initBoard)
+        val motherLocation = BoardLocation(1, 1, 0)
+        val seedLocation = BoardLocation(-2, 1, 3)
+        initialState
+          .copy(forestBlocks = forestBlocks, playerBoards = playerBoards)
+          .playerSeedPlant(john, motherLocation, seedLocation) shouldBe Left("Unable to seed: Out of range")
+      }
+      "should success if all condition is satisfied" in {
+        val john = Player("John", Blue)
+        val sa = MediumTree(Blue)
+        val forestBlocks = List(ForestBlock(1, 1, 0, sa))
+        val playerBoards = List(john.initBoard)
+        val motherLocation = BoardLocation(1, 1, 0)
+        val seedLocation = BoardLocation(-1, 1, 2)
+        val mockedInitialState = initialState
+          .copy(forestBlocks = forestBlocks, playerBoards = playerBoards)
+
+        val expectedInitialState = {
+          val updatedForestBlocks = mockedInitialState.forestBlocks.map {
+            case fb @ ForestBlock(bl, pi) if bl == motherLocation && pi.plantType == john.plantType => fb.copy(plantItem = sa.seed)
+            case a => a
+          }
+          Right(mockedInitialState.copy(forestBlocks = updatedForestBlocks :+ ForestBlock(seedLocation, Seed(john.plantType))))
+        }
+        mockedInitialState
+          .playerSeedPlant(john, motherLocation, seedLocation) shouldBe expectedInitialState
+      }
     }
     "grow" - {
       "should fail if the plant is already done the action seed" is pending

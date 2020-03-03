@@ -147,4 +147,13 @@ class BoardLocationSpec extends FreeSpec with Matchers {
       }
     }
   }
+
+  "inRadius" - {
+    "should work by the following examples" in {
+      BoardLocation(0, 0, 0).inRadius(BoardLocation(0, 1, 1), 1) shouldBe true
+      BoardLocation(0, 0, 0).inRadius(BoardLocation(0, 1, 1), 0) shouldBe false
+      BoardLocation(0, 0, 0).inRadius(BoardLocation(-3, 0, 3), 0) shouldBe false
+      BoardLocation(0, 0, 0).inRadius(BoardLocation(-3, 0, 3), 3) shouldBe true
+    }
+  }
 }

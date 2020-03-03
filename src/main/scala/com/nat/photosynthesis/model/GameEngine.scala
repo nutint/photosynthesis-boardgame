@@ -142,11 +142,16 @@ case class GameEnginePlaying(
           case ForestBlock(_, plantItem) if plantItem.plantType == player.plantType => plantItem match {
             case _: CooledDownPlantItem => Left("Unable to seed: Plant is in cool down")
             case sa: SeedAble =>
-              val updatedForestBlocks = forestBlocks.map {
-                case fb @ ForestBlock(bl, pi) if bl == motherLocation && pi.plantType == player.plantType => fb.copy(plantItem = sa.seed)
-                case a => a
+              if(motherLocation.inRadius(seedLocation, plantItem.height)) {
+                val updatedForestBlocks = forestBlocks.map {
+                  case fb @ ForestBlock(bl, pi) if bl == motherLocation && pi.plantType == player.plantType => fb.copy(plantItem = sa.seed)
+                  case a => a
+                }
+                Right(copy(forestBlocks = updatedForestBlocks :+ ForestBlock(seedLocation, Seed(player.plantType))))
+              } else {
+                Left("Unable to seed: Out of range")
               }
-              Right(copy(forestBlocks = updatedForestBlocks :+ ForestBlock(seedLocation, Seed(player.plantType))))
+            case _ => Left("Unable to seed: Cannot seed")
           }
           case ForestBlock(_, plantItem) if plantItem.plantType != player.plantType => Left("Unable to seed: Not player's plant")
         }

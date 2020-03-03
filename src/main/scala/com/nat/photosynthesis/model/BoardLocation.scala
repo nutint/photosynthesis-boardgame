@@ -33,6 +33,14 @@ case class BoardLocation(x: Int, y: Int, z: Int) {
     }
   }
 
+  def inRadius(rhs: BoardLocation, range: Int): Boolean =
+    List(SunLocation0, SunLocation1, SunLocation2)
+      .exists(sl => getDistance(rhs, sl) match {
+        case Front(r) if r <= range => true
+        case Rear(r) if r <= range => true
+        case _ => false
+      })
+
   def getDistance(boardLocation: BoardLocation, sunLocation: SunLocation): Distance = {
     if(boardLocation == this) Same
     else if(!isSameLine(boardLocation, sunLocation)) DifferentLine
