@@ -181,7 +181,7 @@ class GameEngineSpec extends FreeSpec with Matchers
           .flatMap(_.placeTree(1, BoardLocation(3, 3, 0)))
           .flatMap(_.placeTree(0, BoardLocation(-3, 3, 0)))
           .flatMap(_.placeTree(1, BoardLocation(0, -3, -3)))
-        
+
         val extractedPlacedTreeGameState = placedTreeGameState.getOrElse(null)
 
         val calculatedScoreBoard = extractedPlacedTreeGameState.playerBoards
@@ -206,6 +206,16 @@ class GameEngineSpec extends FreeSpec with Matchers
               tokenStock = extractedPlacedTreeGameState.tokenStock
             )
           )
+      }
+
+      "should not allow if start playing when all player does not have 2 trees" in {
+        Right[String, GameEnginePlacingFirst2TreesState](nonPlayerPlaceTreeYet)
+          .flatMap(_.placeTree(0, BoardLocation(0, 3, 3)))
+          .flatMap(_.placeTree(1, BoardLocation(3, 3, 0)))
+          .flatMap(_.placeTree(0, BoardLocation(-3, 3, 0)))
+          .flatMap(_.placeTree(1, BoardLocation(0, -3, -3)))
+          .flatMap(_.placeTree(0, BoardLocation(-3, -3, 0)))
+          .flatMap(_.startPlaying) shouldBe Left("Cannot start the game: all players must place only 2 trees")
       }
     }
   }
