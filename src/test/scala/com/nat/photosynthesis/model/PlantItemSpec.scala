@@ -59,8 +59,11 @@ class PlantItemSpec extends FreeSpec with Matchers {
   "seed" - {
     "should be cooled down after seed" in {
       SmallTree(Green).seed shouldBe CooledDownSmallTree(Green)
+      SmallTree(Green).seedCost shouldBe 1
       MediumTree(Green).seed shouldBe CooledDownMediumTree(Green)
+      MediumTree(Green).seedCost shouldBe 1
       LargeTree(Green).seed shouldBe CooledDownLargeTree(Green)
+      LargeTree(Green).seedCost shouldBe 1
     }
   }
 

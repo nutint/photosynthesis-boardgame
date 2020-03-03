@@ -8,6 +8,7 @@ sealed trait PlantItem {
 
 sealed trait SeedAble extends PlantItem {
   def seed: CooledDownPlantItem
+  def seedCost: Int = 1
 }
 sealed trait GrowAble extends PlantItem {
   def grow: CooledDownPlantItem
