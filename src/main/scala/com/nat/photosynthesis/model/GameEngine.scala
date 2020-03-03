@@ -105,4 +105,30 @@ case class GameEnginePlaying(
   playerBoards: List[PlayerBoard],
   forestBlocks: List[ForestBlock],
   tokenStock: TokenStock
-)
+) extends GameEngine {
+  def lastDay = 4
+  def passNextPlayer: GameEngine = {
+    val nextPlayer = (actionPlayer + 1) % playerBoards.length
+    val nextStartingPlayer = (startingPlayer + 1) % playerBoards.length
+    val endRound = nextPlayer == startingPlayer
+    val endDay = sunLocation.next == SunLocation0
+    val calculatedStartingPlayer = if(endRound) nextStartingPlayer else startingPlayer
+    val calculatedNextPlayer = if(endRound) calculatedStartingPlayer else nextPlayer
+    val calculatedSunLocation = if(endRound) sunLocation.next else sunLocation
+    val calculatedDay = if(endDay) day + 1 else day
+    val endGame = day + 1 == lastDay
+    if(endGame && endDay) GameEngineOver(playerBoards, forestBlocks)
+    else
+      copy(
+        actionPlayer = calculatedNextPlayer,
+        startingPlayer = calculatedStartingPlayer,
+        sunLocation = calculatedSunLocation,
+        day = calculatedDay
+      )
+  }
+}
+
+case class GameEngineOver(
+  playerBoards: List[PlayerBoard],
+  forestBlocks: List[ForestBlock]
+) extends GameEngine

@@ -7,3 +7,7 @@ case class PlayerBoard(
   stock: List[PlantItem],
   store: PlantStore
 )
+
+object PlayerBoard {
+  def apply(player: Player): PlayerBoard = player.initBoard
+}

@@ -222,10 +222,31 @@ class GameEngineSpec extends FreeSpec with Matchers
 
   "GameEnginePlaying" - {
     "passNextPlayer" - {
-      "should remain player token at the same player and make next player actionable" is pending
-      "should move player token, move sun, and set next player as first player of next round" in pending
-      "should end the round when the sun come back to the starting point" is pending
-      "should end the game if the sun come back to the starting point and there is the last round token remove from the board" is pending
+      val initialState = GameEnginePlaying(
+        actionPlayer = 0,
+        startingPlayer = 0,
+        sunLocation = SunLocation0,
+        day = 0,
+        playerBoards = List(Player("John", Green), Player("Doe", Blue), Player("Sarah", Orange)).map(_.initBoard),
+        forestBlocks = Nil,
+        tokenStock = TokenStock()
+      )
+      "should remain player token at the same player and make next player actionable" in {
+        initialState.passNextPlayer shouldBe initialState.copy(actionPlayer = 1)
+      }
+      "should set next and starting player to the same, and move sun location if the last player of the round is end turn" in {
+        initialState.copy(actionPlayer = 2, startingPlayer = 0).passNextPlayer shouldBe initialState.copy(actionPlayer = 1, startingPlayer = 1, sunLocation = SunLocation1)
+        initialState.copy(actionPlayer = 1, startingPlayer = 2).passNextPlayer shouldBe initialState.copy(actionPlayer = 0, startingPlayer = 0, sunLocation = SunLocation1)
+      }
+      "should move player token, move sun, increase day, and set next player as first player of next round" in {
+        initialState.copy(actionPlayer = 1, startingPlayer = 2, sunLocation = SunLocation5).passNextPlayer shouldBe
+          initialState.copy(actionPlayer = 0, startingPlayer = 0, sunLocation = SunLocation0, day = 1)
+      }
+      "should end the game if the sun come back to the starting point and there is the last round token remove from the board" in {
+        val GameEnginePlaying(_, _, _, _, playerBoard, forestBlock, _) = initialState
+        initialState.copy(actionPlayer = 1, startingPlayer = 2, sunLocation = SunLocation5, day = 3).passNextPlayer shouldBe
+          GameEngineOver(playerBoard, forestBlock)
+      }
     }
     "grow" - {
       "should fail if the plant is already done the action seed" is pending
