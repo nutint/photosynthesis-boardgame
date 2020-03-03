@@ -63,18 +63,27 @@ case class GameEnginePlacingFirst2TreesState(
   def activePlayer = playerBoards(plantingTreePlayer).player
 
   def startPlaying: Either[String, GameEnginePlaying] = {
-    if(forestBlocks.length == playerBoards.length * 2)
+    if(forestBlocks.length == playerBoards.length * 2) {
+      val calculatedScoreBoard = playerBoards
+        .map { board =>
+          val playerBoardScore = forestBlocks
+            .filter(_.plantItem.plantType == board.player.plantType)
+            .map(_.calculateScore(SunLocation0, forestBlocks))
+            .sum
+          board.copy(sun = playerBoardScore)
+        }
       Right(GameEnginePlaying(
         actionPlayer = 0,
         startingPlayer = 0,
         sunLocation = SunLocation0,
         day = 0,
-        playerBoards = playerBoards,
+        playerBoards = calculatedScoreBoard,
         forestBlocks = forestBlocks,
         tokenStock = tokenStock
       ))
+    }
     else
-      Left("Some player need to place their small tree")
+      Left("Cannot start the game: all players must place 2 trees")
   }
 }
 

@@ -21,11 +21,10 @@ case class ForestBlock(
       else {
         val distance = boardLocation.getDistance(rhs.boardLocation, sunLocation)
         distance match {
-          case Rear(x) => {
+          case Rear(x) =>
             val shadowCovered = x <= rhs.plantItem.height
             val shorterOrEqual = plantItem.height <= rhs.plantItem.height
             Right(shadowCovered && shorterOrEqual)
-          }
           case _ => Right(false)
         }
       }

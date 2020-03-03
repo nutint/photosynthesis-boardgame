@@ -164,29 +164,48 @@ class GameEngineSpec extends FreeSpec with Matchers
     }
 
     "startPlaying" - {
+
       "should allow start playing if all players placed 2 trees" in {
-        nonPlayerPlaceTreeYet.startPlaying shouldBe Left("Some player need to place their small tree")
+        nonPlayerPlaceTreeYet.startPlaying shouldBe Left("Cannot start the game: all players must place 2 trees")
       }
-      "should not allow start playing if all player are not finished place 2 trees yet" in {
+
+      "should not allowed player to start playing if non all player not placed 2 trees yet" in {
+        Right[String, GameEnginePlacingFirst2TreesState](nonPlayerPlaceTreeYet)
+          .flatMap(_.placeTree(0, BoardLocation(0, 3, 3)))
+          .flatMap(_.startPlaying) shouldBe Left("Cannot start the game: all players must place 2 trees")
+      }
+
+      "should allow start playing if all player are finished place 2 trees yet" in {
         val placedTreeGameState = Right[String, GameEnginePlacingFirst2TreesState](nonPlayerPlaceTreeYet)
           .flatMap(_.placeTree(0, BoardLocation(0, 3, 3)))
           .flatMap(_.placeTree(1, BoardLocation(3, 3, 0)))
           .flatMap(_.placeTree(0, BoardLocation(-3, 3, 0)))
           .flatMap(_.placeTree(1, BoardLocation(0, -3, -3)))
-
+        
         val extractedPlacedTreeGameState = placedTreeGameState.getOrElse(null)
+
+        val calculatedScoreBoard = extractedPlacedTreeGameState.playerBoards
+            .map { board =>
+              val playerBoardScore = extractedPlacedTreeGameState
+                .forestBlocks
+                .filter(_.plantItem.plantType == board.player.plantType)
+                .map(_.calculateScore(SunLocation0, extractedPlacedTreeGameState.forestBlocks))
+                .sum
+              board.copy(sun = playerBoardScore)
+            }
+
         placedTreeGameState
           .flatMap(_.startPlaying) shouldBe Right(
-          GameEnginePlaying(
-            actionPlayer = 0,
-            startingPlayer = 0,
-            sunLocation = SunLocation0,
-            day = 0,
-            playerBoards = extractedPlacedTreeGameState.playerBoards,
-            forestBlocks = extractedPlacedTreeGameState.forestBlocks,
-            tokenStock = extractedPlacedTreeGameState.tokenStock
+            GameEnginePlaying(
+              actionPlayer = 0,
+              startingPlayer = 0,
+              sunLocation = SunLocation0,
+              day = 0,
+              playerBoards = calculatedScoreBoard,
+              forestBlocks = extractedPlacedTreeGameState.forestBlocks,
+              tokenStock = extractedPlacedTreeGameState.tokenStock
+            )
           )
-        )
       }
     }
   }
