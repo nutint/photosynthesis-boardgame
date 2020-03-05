@@ -58,12 +58,13 @@ class PlantItemSpec extends FreeSpec with Matchers {
 
   "seed" - {
     "should be cooled down after seed" in {
+      import PlantItem._
       SmallTree(Green).seed shouldBe CooledDownSmallTree(Green)
-      SmallTree(Green).seedCost shouldBe 1
+      SmallTree(Green).seedCost shouldBe Resource(Seed(Green),1)
       MediumTree(Green).seed shouldBe CooledDownMediumTree(Green)
-      MediumTree(Green).seedCost shouldBe 1
+      MediumTree(Green).seedCost shouldBe Resource(Seed(Green),1)
       LargeTree(Green).seed shouldBe CooledDownLargeTree(Green)
-      LargeTree(Green).seedCost shouldBe 1
+      LargeTree(Green).seedCost shouldBe Resource(Seed(Green),1)
     }
   }
 
@@ -72,6 +73,15 @@ class PlantItemSpec extends FreeSpec with Matchers {
       CooledDownSmallTree(Green).reset shouldBe SmallTree(Green)
       CooledDownMediumTree(Green).reset shouldBe MediumTree(Green)
       CooledDownLargeTree(Green).reset shouldBe LargeTree(Green)
+    }
+  }
+
+  "growResource" - {
+    import PlantItem.Resource
+    "should returns correct upgrade resource" in {
+      Seed(Green).growResource shouldBe Resource(SmallTree(Green), 1)
+      SmallTree(Green).growResource shouldBe Resource(MediumTree(Green), 2)
+      MediumTree(Green).growResource shouldBe Resource(LargeTree(Green), 3)
     }
   }
 }

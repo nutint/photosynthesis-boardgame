@@ -1,5 +1,7 @@
 package com.nat.photosynthesis.model
 
+import PlantItem._
+
 sealed trait PlantItem {
   def plantType: PlantType
   def score: Int
@@ -8,11 +10,12 @@ sealed trait PlantItem {
 
 sealed trait SeedAble extends PlantItem {
   def seed: CooledDownPlantItem
-  def seedCost: Int = 1
+  def seedCost: Resource = Resource(Seed(plantType), 1)
 }
 sealed trait GrowAble extends PlantItem {
   def grow: CooledDownPlantItem
   def growCost: Int
+  def growResource: Resource
 }
 sealed trait CooledDownPlantItem extends PlantItem {
   def reset: ReadyPlantItem
@@ -25,6 +28,7 @@ case class Seed(plantType: PlantType) extends ReadyPlantItem with GrowAble {
   override def height: Int = 0
   override def grow: CooledDownPlantItem = CooledDownSmallTree(plantType)
   override def growCost: Int = 1
+  override def growResource: Resource = Resource(SmallTree(plantType), 1)
 }
 
 case class CooledDownSmallTree(plantType: PlantType) extends CooledDownPlantItem {
@@ -38,6 +42,7 @@ case class SmallTree(plantType: PlantType) extends ReadyPlantItem with GrowAble 
   override def grow: CooledDownPlantItem = CooledDownMediumTree(plantType)
   override def growCost: Int = 2
   override def seed: CooledDownPlantItem = CooledDownSmallTree(plantType)
+  override def growResource: Resource = Resource(MediumTree(plantType), 2)
 }
 
 case class CooledDownMediumTree(plantType: PlantType) extends CooledDownPlantItem {
@@ -51,6 +56,7 @@ case class MediumTree(plantType: PlantType) extends ReadyPlantItem with GrowAble
   override def grow: CooledDownPlantItem = CooledDownLargeTree(plantType)
   override def growCost: Int = 3
   override def seed: CooledDownPlantItem = CooledDownMediumTree(plantType)
+  override def growResource: Resource = Resource(LargeTree(plantType), 3)
 }
 
 case class CooledDownLargeTree(plantType: PlantType) extends CooledDownPlantItem {
@@ -63,4 +69,8 @@ case class LargeTree(plantType: PlantType) extends ReadyPlantItem with SeedAble 
   override def height: Int = 3
   override def seed: CooledDownPlantItem = CooledDownLargeTree(plantType)
   def shopCost: Int = 4
+}
+
+object PlantItem {
+  case class Resource(seedAble: PlantItem, cost: Int)
 }
