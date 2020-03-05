@@ -167,7 +167,16 @@ case class GameEnginePlaying(
         case fb: ForestBlock if fb.isOwnedBy(player) => fb.plantItem match {
           case _: CooledDownPlantItem => Left("Unable to grow: Cooling down")
           case _: LargeTree => Left("Unable to grow: Already large tree")
-          case ga: GrowAble => Left("default")
+          case ga: GrowAble => {
+            import PlantItem._
+            val Resource(plant, cost) = ga.growResource
+            playerBoards
+              .find(_.player == player)
+              .map { playerBoard =>
+                Left("default")
+              }
+              .getOrElse(Left("Unable to grow: Player not found"))
+          }
         }
       }
       .getOrElse(Left(s"Unable to grow: No plant here"))

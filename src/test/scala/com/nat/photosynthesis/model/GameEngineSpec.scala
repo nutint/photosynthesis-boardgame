@@ -386,6 +386,16 @@ class GameEngineSpec extends FreeSpec with Matchers
         initialState.copy(forestBlocks = forestBlocks)
           .grow(john, BoardLocation(1, 1, 0)) shouldBe Left("Unable to grow: Already large tree")
       }
+      "should fail if player is not in the board" in {
+        val john = Player("John", Blue)
+        val forestBlocks = List(ForestBlock(1, 1, 0, SmallTree(Blue)))
+        initialState
+          .copy(
+            forestBlocks = forestBlocks,
+            playerBoards = List(john.copy(name = "Other").initBoard)
+          )
+          .grow(john, BoardLocation(1, 1, 0)) shouldBe Left("Unable to grow: Player not found")
+      }
 
       "should fail if there is no available bigger tree in the stock" in {
         val john = Player("John", Blue)
