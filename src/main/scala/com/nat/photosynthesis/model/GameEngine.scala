@@ -163,23 +163,34 @@ case class GameEnginePlaying(
     forestBlocks
       .find(_.boardLocation == bl )
       .map {
-        case fb: ForestBlock if !fb.isOwnedBy(player) => Left(s"Unable to grow: Not own by player ${player.name}")
+        case fb: ForestBlock if !fb.isOwnedBy(player) => Left(s"Not own by player ${player.name}")
         case fb: ForestBlock if fb.isOwnedBy(player) => fb.plantItem match {
-          case _: CooledDownPlantItem => Left("Unable to grow: Cooling down")
-          case _: LargeTree => Left("Unable to grow: Already large tree")
-          case ga: GrowAble => {
-            import PlantItem._
-            val Resource(plant, cost) = ga.growResource
+          case _: CooledDownPlantItem => Left("Cooling down")
+          case _: LargeTree => Left("Already large tree")
+          case ga: GrowAble =>
             playerBoards
               .find(_.player == player)
-              .map { playerBoard =>
-                Left("default")
-              }
-              .getOrElse(Left("Unable to grow: Player not found"))
-          }
+              .map(_.withdrawResource(ga.growResource)) match {
+              case None => Left("Player not found")
+              case Some(e) => e
+                .map { newPb =>
+                  copy(
+                    playerBoards = playerBoards.map( opb => if(opb.player == player) newPb else opb )
+                  )
+                }
+            }
+
+//            Either.cond(optionalPlayer.isDefined, optionalPlayer.get, "Unable to grow: Player not found")
+//              .flatMap(_)
+//              .map { newPb =>
+//                copy(
+//                  playerBoards = playerBoards.map( opb => if(opb.player == player) newPb else opb )
+//                )
+//              }
+//              .getOrElse(Left("Unable to grow: Player not found"))
         }
       }
-      .getOrElse(Left(s"Unable to grow: No plant here"))
+      .getOrElse(Left(s"No plant here"))
 
 }
 

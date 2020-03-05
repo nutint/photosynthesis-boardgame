@@ -366,25 +366,25 @@ class GameEngineSpec extends FreeSpec with Matchers
         val john = Player("John", Blue)
         val forestBlocks = Nil
         initialState.copy(forestBlocks = forestBlocks)
-          .grow(john, BoardLocation(1, 1, 0)) shouldBe Left("Unable to grow: No plant here")
+          .grow(john, BoardLocation(1, 1, 0)) shouldBe Left("No plant here")
       }
       "should fail if the plant is not owned by player" in {
         val john = Player("John", Blue)
         val forestBlocks = List(ForestBlock(1, 1, 0, MediumTree(Green)))
         initialState.copy(forestBlocks = forestBlocks)
-          .grow(john, BoardLocation(1, 1, 0)) shouldBe Left("Unable to grow: Not own by player John")
+          .grow(john, BoardLocation(1, 1, 0)) shouldBe Left("Not own by player John")
       }
       "should fail if the plant is during cool down" in {
         val john = Player("John", Blue)
         val forestBlocks = List(ForestBlock(1, 1, 0, CooledDownMediumTree(Blue)))
         initialState.copy(forestBlocks = forestBlocks)
-          .grow(john, BoardLocation(1, 1, 0)) shouldBe Left("Unable to grow: Cooling down")
+          .grow(john, BoardLocation(1, 1, 0)) shouldBe Left("Cooling down")
       }
       "should fail if the tree is already large tree" in {
         val john = Player("John", Blue)
         val forestBlocks = List(ForestBlock(1, 1, 0, LargeTree(Blue)))
         initialState.copy(forestBlocks = forestBlocks)
-          .grow(john, BoardLocation(1, 1, 0)) shouldBe Left("Unable to grow: Already large tree")
+          .grow(john, BoardLocation(1, 1, 0)) shouldBe Left("Already large tree")
       }
       "should fail if player is not in the board" in {
         val john = Player("John", Blue)
@@ -394,21 +394,32 @@ class GameEngineSpec extends FreeSpec with Matchers
             forestBlocks = forestBlocks,
             playerBoards = List(john.copy(name = "Other").initBoard)
           )
-          .grow(john, BoardLocation(1, 1, 0)) shouldBe Left("Unable to grow: Player not found")
+          .grow(john, BoardLocation(1, 1, 0)) shouldBe Left("Player not found")
       }
 
       "should fail if there is no available bigger tree in the stock" in {
         val john = Player("John", Blue)
-        val forestBlocks = List(ForestBlock(1, 1, 0, CooledDownMediumTree(Blue)))
-        val playerBoards = List(john.initBoard.copy(stock = Nil))
+        val forestBlocks = List(ForestBlock(1, 1, 0, MediumTree(Blue)))
+        val playerBoards = List(john.initBoard.copy(stock = Nil).copy(sun = 9))
         initialState
           .copy(
             forestBlocks = forestBlocks,
             playerBoards = playerBoards)
-          .grow(john, BoardLocation(1, 1, 0)) shouldBe Left("Unable to grow: No available large tree")
+          .grow(john, BoardLocation(1, 1, 0)) shouldBe Left("Not enough tree/seed in stock")
       }
-      "should fail if there is available bigger tree but not enough sun" is pending
-      "should success if there is enough sun, have available bigger tree" is pending
+      "should fail if there is available bigger tree but not enough sun" in {
+        val john = Player("John", Blue)
+        val forestBlocks = List(ForestBlock(1, 1, 0, MediumTree(Blue)))
+        val playerBoards = List(john.initBoard.copy(stock = Nil).copy(sun = 0))
+        initialState
+          .copy(
+            forestBlocks = forestBlocks,
+            playerBoards = playerBoards)
+          .grow(john, BoardLocation(1, 1, 0)) shouldBe Left("Not enough sun")
+      }
+      "should success if there is enough sun, have available bigger tree" in {
+        
+      }
       "should place back replaced tree/seed in the top most available space" is pending
       "should discard replaced tree/seed if there is no available space" is pending
     }
