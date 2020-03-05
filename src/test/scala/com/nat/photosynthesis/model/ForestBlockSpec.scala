@@ -54,4 +54,13 @@ class ForestBlockSpec extends FreeSpec with Matchers {
       }
     }
   }
+
+  "isOwnBy" - {
+    "should be true if it the same plant type with players'" in {
+      ForestBlock(0, 1, 1, SmallTree(Green)).isOwnedBy(Player("John", Green)) shouldBe true
+    }
+    "should be false if not the same plant type with players'" in {
+      ForestBlock(0, 1, 1, SmallTree(Green)).isOwnedBy(Player("John", Blue)) shouldBe false
+    }
+  }
 }

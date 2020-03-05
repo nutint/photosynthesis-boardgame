@@ -362,9 +362,41 @@ class GameEngineSpec extends FreeSpec with Matchers
       }
     }
     "grow" - {
-      "should fail if the plant is already done the action seed" is pending
-      "should fail if the plant is already done the action grow" is pending
-      "should fail if there is no available bigger tree in the stock" is pending
+      "should fail if there is no plant in the location" in {
+        val john = Player("John", Blue)
+        val forestBlocks = Nil
+        initialState.copy(forestBlocks = forestBlocks)
+          .grow(john, BoardLocation(1, 1, 0)) shouldBe Left("Unable to grow: No plant here")
+      }
+      "should fail if the plant is not owned by player" in {
+        val john = Player("John", Blue)
+        val forestBlocks = List(ForestBlock(1, 1, 0, MediumTree(Green)))
+        initialState.copy(forestBlocks = forestBlocks)
+          .grow(john, BoardLocation(1, 1, 0)) shouldBe Left("Unable to grow: Not own by player John")
+      }
+      "should fail if the plant is during cool down" in {
+        val john = Player("John", Blue)
+        val forestBlocks = List(ForestBlock(1, 1, 0, CooledDownMediumTree(Blue)))
+        initialState.copy(forestBlocks = forestBlocks)
+          .grow(john, BoardLocation(1, 1, 0)) shouldBe Left("Unable to grow: Cooling down")
+      }
+      "should fail if the tree is already large tree" in {
+        val john = Player("John", Blue)
+        val forestBlocks = List(ForestBlock(1, 1, 0, LargeTree(Blue)))
+        initialState.copy(forestBlocks = forestBlocks)
+          .grow(john, BoardLocation(1, 1, 0)) shouldBe Left("Unable to grow: Already large tree")
+      }
+
+      "should fail if there is no available bigger tree in the stock" in {
+        val john = Player("John", Blue)
+        val forestBlocks = List(ForestBlock(1, 1, 0, CooledDownMediumTree(Blue)))
+        val playerBoards = List(john.initBoard.copy(stock = Nil))
+        initialState
+          .copy(
+            forestBlocks = forestBlocks,
+            playerBoards = playerBoards)
+          .grow(john, BoardLocation(1, 1, 0)) shouldBe Left("Unable to grow: No available large tree")
+      }
       "should fail if there is available bigger tree but not enough sun" is pending
       "should success if there is enough sun, have available bigger tree" is pending
       "should place back replaced tree/seed in the top most available space" is pending

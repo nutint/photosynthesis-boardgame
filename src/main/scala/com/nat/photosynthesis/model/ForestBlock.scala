@@ -30,6 +30,7 @@ case class ForestBlock(
     }
   }
 
+  def isOwnedBy(player: Player): Boolean = plantItem.plantType == player.plantType
 }
 
 object ForestBlock {

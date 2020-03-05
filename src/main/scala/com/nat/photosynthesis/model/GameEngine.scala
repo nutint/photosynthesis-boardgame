@@ -158,6 +158,20 @@ case class GameEnginePlaying(
         .getOrElse(Left("Unable to seed: Plant not found"))
     }
   }
+
+  def grow(player: Player, bl: BoardLocation): Either[String,GameEnginePlaying] =
+    forestBlocks
+      .find(_.boardLocation == bl )
+      .map {
+        case fb: ForestBlock if !fb.isOwnedBy(player) => Left(s"Unable to grow: Not own by player ${player.name}")
+        case fb: ForestBlock if fb.isOwnedBy(player) => fb.plantItem match {
+          case _: CooledDownPlantItem => Left("Unable to grow: Cooling down")
+          case _: LargeTree => Left("Unable to grow: Already large tree")
+          case ga: GrowAble => Left("default")
+        }
+      }
+      .getOrElse(Left(s"Unable to grow: No plant here"))
+
 }
 
 case class GameEngineOver(
