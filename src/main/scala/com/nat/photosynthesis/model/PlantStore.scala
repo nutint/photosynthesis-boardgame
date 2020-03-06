@@ -2,20 +2,20 @@ package com.nat.photosynthesis.model
 
 case class PlantStore(
   plantType: PlantType,
-  seedStore: List[Priced[Seed]],
-  smallTreeStore: List[Priced[SmallTree]],
-  mediumTreeStore: List[Priced[MediumTree]],
-  largeTreeStore: List[Priced[LargeTree]],
+  seedStore: StoreSpace[Seed],
+  smallTreeStore: StoreSpace[SmallTree],
+  mediumTreeStore: StoreSpace[MediumTree],
+  largeTreeStore: StoreSpace[LargeTree]
 )
 
 object PlantStore {
 
   def apply(plantType: PlantType): PlantStore = PlantStore(
-    plantType = plantType,
-    seedStore = List(1, 1, 2, 2).map(Priced[Seed]),
-    smallTreeStore = List(2, 2, 3, 3).map(Priced[SmallTree]),
-    mediumTreeStore = List(3, 3, 4, 4).map(Priced[MediumTree]),
-    largeTreeStore = List(4, 5).map(Priced[LargeTree])
+    plantType = Green,
+    seedStore = StoreSpace[Seed](List(1, 1, 2, 2)),
+    smallTreeStore = StoreSpace[SmallTree](List(2, 2, 3, 3)),
+    mediumTreeStore = StoreSpace[MediumTree](List(3, 3, 4, 4)),
+    largeTreeStore = StoreSpace[LargeTree](List(4, 5))
   )
 
 }

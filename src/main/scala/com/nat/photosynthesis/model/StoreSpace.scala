@@ -23,5 +23,6 @@ case class StoreSpace[A<:PlantItem](prices: List[Int], private val currItem: Int
 
 object StoreSpace {
   def apply[A<:PlantItem](prices: List[Int]): StoreSpace[A] = StoreSpace[A](prices, 0)
+  def apply[A<:PlantItem](prices: Int*): StoreSpace[A] = apply(prices.toList)
 }
 
