@@ -417,8 +417,26 @@ class GameEngineSpec extends FreeSpec with Matchers
             playerBoards = playerBoards)
           .grow(john, BoardLocation(1, 1, 0)) shouldBe Left("Not enough sun")
       }
-      "should success if there is enough sun, have available bigger tree" in {
-        
+      "should success if there is enough sun, have available bigger tree, also place replaced tree in available space" in {
+        val john = Player("John", Blue)
+        val johnsBoard = john.initBoard.copy(stock = Nil).copy(sun = 3, store = PlantStore(Blue, Nil, Nil, Nil, List(Priced(4))))
+        val johnForestBlock = ForestBlock(1, 1, 0, MediumTree(Blue))
+        val forestBlocks = List(johnForestBlock)
+        val playerBoards = List(johnsBoard)
+
+        val expectedJohnBoardAfterPlace = johnsBoard.withdrawResource(MediumTree(Blue).growResource)
+        val expectedForestBlock = johnForestBlock.copy(plantItem = CooledDownLargeTree(Blue))
+        initialState
+          .copy(
+            forestBlocks = forestBlocks,
+            playerBoards = playerBoards)
+          .grow(john, BoardLocation(1, 1, 0)) shouldBe Right(
+            initialState
+              .copy(
+                forestBlocks = List(expectedForestBlock),
+                playerBoards = List(expectedJohnBoardAfterPlace.toOption.get)
+              )
+        )
       }
       "should place back replaced tree/seed in the top most available space" is pending
       "should discard replaced tree/seed if there is no available space" is pending
