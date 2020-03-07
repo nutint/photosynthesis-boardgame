@@ -13,6 +13,7 @@ case class PlantStore(
       case _: SmallTree => smallTreeStore.currentPrice
       case _: MediumTree => mediumTreeStore.currentPrice
       case _: LargeTree => largeTreeStore.currentPrice
+      case _ => Left("Invalid Plant Type")
     }
 
   def take(plantItem: PlantItem): Either[String, PlantStore] =
@@ -21,6 +22,7 @@ case class PlantStore(
       case _: SmallTree => smallTreeStore.take.map(ss => copy(smallTreeStore = ss))
       case _: MediumTree => mediumTreeStore.take.map(ss => copy(mediumTreeStore = ss))
       case _: LargeTree => largeTreeStore.take.map(ss => copy(largeTreeStore = ss))
+      case _ => Left("Invalid Plant Type")
     }
 
   def putBack(plantItem: PlantItem):Either[String, PlantStore] =
@@ -29,14 +31,8 @@ case class PlantStore(
       case _: SmallTree => smallTreeStore.putBack.map(ss => copy(smallTreeStore = ss))
       case _: MediumTree => mediumTreeStore.putBack.map(ss => copy(mediumTreeStore = ss))
       case _: LargeTree => largeTreeStore.putBack.map(ss => copy(largeTreeStore = ss))
+      case _ => Left("Invalid Plant Type")
     }
-
-  def calculate[A](plantItem: PlantItem, fn: StoreSpace[_] => Either[String, A]): Either[String, A] = plantItem match {
-    case _: Seed => fn(seedStore)
-    case _: SmallTree => fn(smallTreeStore)
-    case _: MediumTree => fn(mediumTreeStore)
-    case _: LargeTree => fn(largeTreeStore)
-  }
 }
 
 object PlantStore {

@@ -28,6 +28,7 @@ class PlantStoreSpec extends FreeSpec with Matchers {
       originalPlantStore.getPrice(SmallTree(Green)) shouldBe smallTreeStoreSpace.currentPrice
       originalPlantStore.getPrice(MediumTree(Green)) shouldBe mediumTreeStoreSpace.currentPrice
       originalPlantStore.getPrice(LargeTree(Green)) shouldBe largeTreeStoreSpace.currentPrice
+      originalPlantStore.getPrice(CooledDownLargeTree(Green)) shouldBe Left("Invalid Plant Type")
     }
   }
 
@@ -37,6 +38,7 @@ class PlantStoreSpec extends FreeSpec with Matchers {
       originalPlantStore.take(SmallTree(Green)) shouldBe smallTreeStoreSpace.take.map(ss => originalPlantStore.copy(smallTreeStore = ss))
       originalPlantStore.take(MediumTree(Green)) shouldBe mediumTreeStoreSpace.take.map(ss => originalPlantStore.copy(mediumTreeStore = ss))
       originalPlantStore.take(LargeTree(Green)) shouldBe largeTreeStoreSpace.take.map(ss => originalPlantStore.copy(largeTreeStore = ss))
+      originalPlantStore.take(CooledDownLargeTree(Green)) shouldBe Left("Invalid Plant Type")
     }
   }
 
@@ -46,6 +48,7 @@ class PlantStoreSpec extends FreeSpec with Matchers {
       originalPlantStore.putBack(SmallTree(Green)) shouldBe smallTreeStoreSpace.putBack.map(ss => originalPlantStore.copy(smallTreeStore = ss))
       originalPlantStore.putBack(MediumTree(Green)) shouldBe mediumTreeStoreSpace.putBack.map(ss => originalPlantStore.copy(mediumTreeStore = ss))
       originalPlantStore.putBack(LargeTree(Green)) shouldBe largeTreeStoreSpace.putBack.map(ss => originalPlantStore.copy(largeTreeStore = ss))
+      originalPlantStore.putBack(CooledDownLargeTree(Green)) shouldBe Left("Invalid Plant Type")
     }
   }
 }
