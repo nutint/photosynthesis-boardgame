@@ -175,7 +175,8 @@ case class GameEnginePlaying(
               case Some(e) => e
                 .map { newPb =>
                   copy(
-                    playerBoards = playerBoards.map( opb => if(opb.player == player) newPb else opb )
+                    playerBoards = playerBoards.map(opb => if(opb.player == player) newPb else opb),
+                    forestBlocks = forestBlocks.map(fb => if(fb.boardLocation == bl) fb.copy(plantItem = ga.grow) else fb )
                   )
                 }
             }

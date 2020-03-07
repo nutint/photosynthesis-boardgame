@@ -419,7 +419,11 @@ class GameEngineSpec extends FreeSpec with Matchers
       }
       "should success if there is enough sun, have available bigger tree, also place replaced tree in available space" in {
         val john = Player("John", Blue)
-        val johnsBoard = john.initBoard.copy(stock = Nil).copy(sun = 3, store = PlantStore(Blue).copy(largeTreeStore = StoreSpace(4, 5)))
+        val johnsBoard = john.initBoard.copy(
+          stock = List(LargeTree(Blue)),
+          sun = 3,
+          store = PlantStore(Blue).take(MediumTree(Blue)).toOption.get
+        )
         val johnForestBlock = ForestBlock(1, 1, 0, MediumTree(Blue))
         val forestBlocks = List(johnForestBlock)
         val playerBoards = List(johnsBoard)

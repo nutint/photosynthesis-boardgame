@@ -20,6 +20,15 @@ case class PlayerBoard(
         ))
     }
   }
+
+  def depositResource(plantItem: PlantItem): Either[String, PlayerBoard] =
+    store.putBack(plantItem).map(s => copy(store = s))
+
+  def buy(plantItem: PlantItem): Either[String, PlayerBoard] =
+    store
+      .getPrice(plantItem)
+      .flatMap(price => if(price > sun) Left("Not enough sun") else Right(sun - price))
+      .flatMap(remainingSun => store.take(plantItem).map(s => copy(store = s, sun = remainingSun)))
 }
 
 object PlayerBoard {
