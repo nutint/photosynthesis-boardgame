@@ -273,4 +273,53 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
       }
     }
   }
+
+  "TokenFormat" - {
+    "read" - {
+      "should be able to read the following input" in {
+        val examples =
+          Table(
+            ("jsonString", "expected"),
+            ("tier1 19", TokenTierOne(19)),
+            ("tier2 20", TokenTierTwo(20)),
+            ("Tier3 30", TokenTierThree(30)),
+            ("Tier4 40", TokenTierFour(40))
+          )
+        forAll(examples) { (jsonString, expected) =>
+          TokenFormat.read(JsString(jsonString)) shouldBe expected
+        }
+      }
+      "should be failed with the following inputs" in {
+        val examples =
+          Table(
+            "jsonString",
+            "asdf asdf",
+            "tier1 abcd",
+            "tier1 abcd efgh"
+          )
+
+        forAll(examples) { jsonString =>
+          verifyReadError[Token](JsString(jsonString), "invalid token value: expected example 'tier1 20', 'tier2 20', 'tier4 50'")
+        }
+        verifyReadError[Token](JsNumber(12345), "invalid token value: expected example 'tier1 20', 'tier2 20', 'tier4 50'")
+      }
+    }
+    "write" - {
+      "should be able to write decodable json" in {
+        val examples =
+          Table(
+            "example",
+            TokenTierOne(1),
+            TokenTierTwo(2),
+            TokenTierThree(3),
+            TokenTierFour(4)
+          )
+        forAll(examples) { example =>
+          TokenFormat.read(
+            TokenFormat.write(example)
+          ) shouldBe example
+        }
+      }
+    }
+  }
 }
