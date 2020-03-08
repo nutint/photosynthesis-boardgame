@@ -2,7 +2,7 @@ package com.nat.photosynthesis.model
 
 import scala.util.Try
 
-case class StoreSpace[A<:PlantItem](prices: List[Int], private val currItem: Int) {
+case class StoreSpace[A<:PlantItem](prices: List[Int], currItem: Int) {
   def currentPrice: Either[String, Int] = Either.cond(Try(prices(currItem)).isSuccess, prices(currItem), "Out of stock")
   def take: Either[String, StoreSpace[A]] =
     if(currItem == prices.length) {

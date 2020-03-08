@@ -67,7 +67,7 @@ object JsonFormats {
         case st :: Nil => st match {
           case "same" => Same
           case "differentline" => DifferentLine
-          case fst => deserializationError(errorMsg)
+          case _ => deserializationError(errorMsg)
         }
         case st :: nd :: Nil => (st, Try(nd.toInt)) match {
           case ("front", Success(intVal)) => Front(intVal)
@@ -76,6 +76,7 @@ object JsonFormats {
         }
         case _ => deserializationError(errorMsg)
       }
+      case _ => deserializationError(errorMsg)
     }
 
     override def write(obj: Distance): JsValue = JsString( obj match {
@@ -127,4 +128,5 @@ object JsonFormats {
 
   implicit val boardLocationFormat = jsonFormat3(BoardLocation.apply)
   implicit val playerFormat = jsonFormat2(Player.apply)
+  implicit def storeSpaceFormat[A<:PlantItem] = jsonFormat2(StoreSpace.apply[A])
 }
