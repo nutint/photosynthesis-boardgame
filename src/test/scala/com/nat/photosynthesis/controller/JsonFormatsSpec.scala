@@ -228,5 +228,25 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
         verifyReadError[PlantItem](JsNumber(123), "invalid plant item value: expected example 'green seed', 'yellow medium-tree', 'blue cooleddown-medium-tree")
       }
     }
+    "write" - {
+      "should be able to write decodable json" in {
+        val examples =
+          Table(
+            "example",
+            Seed(Green),
+            CooledDownSmallTree(Green),
+            SmallTree(Green),
+            CooledDownMediumTree(Green),
+            MediumTree(Green),
+            CooledDownLargeTree(Green),
+            LargeTree(Green)
+          )
+        forAll(examples) { example =>
+          PlantItemFormat.read(
+            PlantItemFormat.write(example)
+          ) shouldBe example
+        }
+      }
+    }
   }
 }
