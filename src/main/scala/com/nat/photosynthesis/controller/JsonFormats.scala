@@ -1,8 +1,6 @@
 package com.nat.photosynthesis.controller
 
 import com.nat.photosynthesis.model._
-
-import scala.math.BigDecimal
 import scala.util._
 
 object JsonFormats {
@@ -176,9 +174,29 @@ object JsonFormats {
     })
   }
 
+  implicit val tokenTierOneFormat: JsonFormat[TokenTierOne] = reuseFormat[TokenTierOne, Token](_.isInstanceOf[TokenTierOne])
+  implicit val tokenTierTwoFormat: JsonFormat[TokenTierTwo] = reuseFormat[TokenTierTwo, Token](_.isInstanceOf[TokenTierTwo])
+  implicit val tokenTierTreeFormat: JsonFormat[TokenTierThree] = reuseFormat[TokenTierThree, Token](_.isInstanceOf[TokenTierThree])
+  implicit val tokenTierFourFormat: JsonFormat[TokenTierFour] = reuseFormat[TokenTierFour, Token](_.isInstanceOf[TokenTierFour])
+
+  def reuseFormat[A<:B, B](isKindOf: B => Boolean)(implicit superFormat: JsonFormat[B]): JsonFormat[A] = new JsonFormat[A] {
+    override def write(obj: A): JsValue = superFormat.write(obj)
+    override def read(json: JsValue): A = superFormat.read(json) match {
+      case t if isKindOf(t) => t.asInstanceOf[A]
+      case _ => deserializationError("abc")
+    }
+  }
+
   implicit val boardLocationFormat = jsonFormat3(BoardLocation.apply)
   implicit val playerFormat = jsonFormat2(Player.apply)
   implicit def storeSpaceFormat[A<:PlantItem] = jsonFormat2(StoreSpace.apply[A])
   implicit val plantStoreFormat = jsonFormat5(PlantStore.apply)
   implicit val playerBoardFormat = jsonFormat5(PlayerBoard.apply)
+  implicit val tokenStockFormat = jsonFormat4(TokenStock.apply)
+  implicit val forestBlockFormat = jsonFormat2(ForestBlock.apply)
+
+  implicit val gameEngineRegistrationStateFormat = jsonFormat2(GameEngineRegistrationState.apply)
+  implicit val gameEnginePlacingFirst2TreesStateFormat = jsonFormat4(GameEnginePlacingFirst2TreesState.apply)
+  implicit val gameEnginePlayingFormat = jsonFormat7(GameEnginePlaying.apply)
+  implicit val gameEngineOverFormat = jsonFormat2(GameEngineOver.apply)
 }
