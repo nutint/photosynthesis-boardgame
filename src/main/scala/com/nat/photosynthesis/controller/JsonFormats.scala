@@ -126,7 +126,34 @@ object JsonFormats {
     }
   }
 
+  implicit object TokenFormat extends JsonFormat[Token] {
+    val errorMsg = "invalid token value: expected example 'tier1 20', 'tier2 20', 'tier4 50'"
+    override def read(json: JsValue): Token = json match {
+      case JsString(strVal) => strVal.trim.toLowerCase.split(" ").map(_.trim).toList match {
+        case fst :: snd :: Nil =>
+          (fst, Try(snd.toInt)) match {
+            case ("tier1", Success(v)) => TokenTierOne(v)
+            case ("tier2", Success(v)) => TokenTierTwo(v)
+            case ("tier3", Success(v)) => TokenTierThree(v)
+            case ("tier4", Success(v)) => TokenTierFour(v)
+            case (_, Success(_)) => deserializationError(errorMsg)
+            case _ => deserializationError(errorMsg)
+          }
+        case _ => deserializationError(errorMsg)
+      }
+      case _ => deserializationError(errorMsg)
+    }
+    override def write(obj: Token): JsValue = JsString(obj match {
+      case TokenTierOne(v) => s"tier1 $v"
+      case TokenTierTwo(v) => s"tier2 $v"
+      case TokenTierThree(v) => s"tier3 $v"
+      case TokenTierFour(v) => s"tier4 $v"
+    })
+  }
+
   implicit val boardLocationFormat = jsonFormat3(BoardLocation.apply)
   implicit val playerFormat = jsonFormat2(Player.apply)
   implicit def storeSpaceFormat[A<:PlantItem] = jsonFormat2(StoreSpace.apply[A])
+  implicit val plantStoreFormat = jsonFormat5(PlantStore.apply)
+  implicit val playerBoardFormat = jsonFormat5(PlayerBoard.apply)
 }
