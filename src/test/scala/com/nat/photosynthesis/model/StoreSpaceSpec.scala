@@ -19,7 +19,7 @@ class StoreSpaceSpec extends FreeSpec with Matchers {
     "should fail if there is no available item in the space" in {
       storeSpace
         .copy(currItem = 4)
-        .currentPrice shouldBe Left("Not available")
+        .currentPrice shouldBe Left("Out of stock")
     }
   }
 

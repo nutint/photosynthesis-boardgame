@@ -442,13 +442,77 @@ class GameEngineSpec extends FreeSpec with Matchers
               )
         )
       }
-      "should place back replaced tree/seed in the top most available space" is pending
-      "should discard replaced tree/seed if there is no available space" is pending
+      "should success if there is enough sun, have available bigger tree, also discard replaced tree if no available space" in {
+        val john = Player("John", Blue)
+        val johnsBoard = john.initBoard.copy(
+          stock = List(LargeTree(Blue)),
+          sun = 3,
+          store = PlantStore(Blue)
+        )
+        val johnForestBlock = ForestBlock(1, 1, 0, MediumTree(Blue))
+        val forestBlocks = List(johnForestBlock)
+        val playerBoards = List(johnsBoard)
+
+        val expectedJohnBoardAfterPlace = johnsBoard.withdrawResource(MediumTree(Blue).growResource)
+        val expectedForestBlock = johnForestBlock.copy(plantItem = CooledDownLargeTree(Blue))
+        initialState
+          .copy(
+            forestBlocks = forestBlocks,
+            playerBoards = playerBoards)
+          .grow(john, BoardLocation(1, 1, 0)) shouldBe Right(
+          initialState
+            .copy(
+              forestBlocks = List(expectedForestBlock),
+              playerBoards = List(expectedJohnBoardAfterPlace.toOption.get)
+            )
+        )
+      }
     }
-    "buyTree" - {
-      "should fail if there is no available tree/seed in the player board" is pending
-      "should fail if there is available tree/seed in the player board but not enough sun" is pending
-      "should success if there is enough sun, and available tree in the player's board" is pending
+    "buyItem" - {
+      "should fail if the buying tree/seed is not the player's color" in {
+        val john = Player("John", Green)
+        initialState
+          .buyItem(john, Seed(Blue)) shouldBe Left("Cannot buy different species")
+      }
+      "should fail if the player is not found on the board" in {
+        val otherPlayer = Player("Jim", Blue)
+        initialState
+          .buyItem(otherPlayer, Seed(Blue)) shouldBe Left("Player not found")
+      }
+      "should fail if there is no available tree/seed in the player board" in {
+        val john = Player("John", Green)
+        val johnBoard = john.initBoard
+        val johnEmptySeedInStoreBoard =
+          johnBoard.copy(store =
+            johnBoard.store
+              .take(Seed(Green))
+              .flatMap(_.take(Seed(Green)))
+              .flatMap(_.take(Seed(Green)))
+              .flatMap(_.take(Seed(Green))).toOption.get)
+        initialState
+          .copy(playerBoards = List(johnEmptySeedInStoreBoard))
+          .buyItem(john, Seed(Green)) shouldBe Left("Out of stock")
+      }
+      "should fail if there is available tree/seed in the player board but not enough sun" in {
+        val john = Player("John", Green)
+        val johnBoard = john.initBoard
+        initialState
+          .copy(playerBoards = List(johnBoard))
+          .buyItem(john, Seed(Green)) shouldBe Left("Not enough sun")
+      }
+      "should deduct sun, place bought item in stock, and deduct item from the store if there is enough sun, and available tree in the player's board" in {
+        val john = Player("John", Green)
+        val johnBoard = john.initBoard.copy(sun = 9)
+        val expectedJohnBoard = johnBoard
+            .copy(
+              sun = 9 - Seed(Green).growCost,
+              stock = johnBoard.stock :+ Seed(Green),
+              store = johnBoard.store.take(Seed(Green)).toOption.get)
+        initialState
+          .copy(playerBoards = List(johnBoard))
+          .buyItem(john, Seed(Green)) shouldBe Right(initialState.copy(playerBoards = List(expectedJohnBoard))
+        )
+      }
     }
     "smartMove" - {
       "should fail if there is no available tree/seed in stock, and no available tree/seed in player board" is pending

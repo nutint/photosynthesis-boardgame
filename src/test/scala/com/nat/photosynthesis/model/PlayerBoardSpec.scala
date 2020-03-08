@@ -55,7 +55,7 @@ class PlayerBoardSpec extends FreeSpec with Matchers {
         .flatMap(_.take(Seed(Green)))
         .flatMap(_.take(Seed(Green))).toOption.get
       johnBoard.copy(store = emptySeedStore)
-        .buy(Seed(Green)) shouldBe Left("Not available")
+        .buy(Seed(Green)) shouldBe Left("Out of stock")
     }
 
     "should deducted sun, deduct deduct store space, and add to the stock if there is enough sun" in {

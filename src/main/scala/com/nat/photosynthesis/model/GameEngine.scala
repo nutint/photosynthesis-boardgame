@@ -180,19 +180,21 @@ case class GameEnginePlaying(
                   )
                 }
             }
-
-//            Either.cond(optionalPlayer.isDefined, optionalPlayer.get, "Unable to grow: Player not found")
-//              .flatMap(_)
-//              .map { newPb =>
-//                copy(
-//                  playerBoards = playerBoards.map( opb => if(opb.player == player) newPb else opb )
-//                )
-//              }
-//              .getOrElse(Left("Unable to grow: Player not found"))
         }
       }
       .getOrElse(Left(s"No plant here"))
 
+  def buyItem(player: Player, plantItem: PlantItem): Either[String, GameEnginePlaying] =
+    if(plantItem.plantType != player.plantType) Left("Cannot buy different species")
+    else {
+      playerBoards.find(_.player == player)
+        .map { playerBoard =>
+          playerBoard.buy(plantItem)
+            .map(newBoard => copy(
+              playerBoards = playerBoards.map(pb => if(pb ==playerBoard) newBoard else pb)))
+        }
+        .getOrElse(Left("Player not found"))
+    }
 }
 
 case class GameEngineOver(
