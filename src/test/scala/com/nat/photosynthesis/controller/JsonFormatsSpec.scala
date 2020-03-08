@@ -249,4 +249,28 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
       }
     }
   }
+
+  "storeSpaceFormat" - {
+    "read" - {
+      "should be able to read the following input" in {
+        val jsonString =
+          """
+            |{
+            |  "prices": [1, 2, 3, 4],
+            |  "currItem": 0
+            |}
+            |""".stripMargin.parseJson
+
+        storeSpaceFormat.read(jsonString) shouldBe StoreSpace(List(1, 2, 3, 4), 0)
+      }
+    }
+    "write" - {
+      "should be able to write decodable json" in {
+        val expectedStoreSpace = StoreSpace(List(1, 2, 3, 4), 0)
+        storeSpaceFormat.read(
+          storeSpaceFormat.write(expectedStoreSpace)
+        ) shouldBe expectedStoreSpace
+      }
+    }
+  }
 }
