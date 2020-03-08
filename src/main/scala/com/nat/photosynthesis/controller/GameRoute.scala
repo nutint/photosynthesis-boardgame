@@ -1,0 +1,12 @@
+package com.nat.photosynthesis.controller
+
+import akka.http.scaladsl.server.Directives._
+
+class GameRoute {
+
+  val route =
+    get {
+      complete("[]")
+    }
+
+}

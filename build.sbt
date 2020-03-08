@@ -12,5 +12,6 @@ libraryDependencies ++= List(
   "com.typesafe.akka" %% "akka-http"   % akkaHttpVersion,
   "com.typesafe.akka" %% "akka-stream" % akkaStreamVersion,
   "com.typesafe.akka" %% "akka-stream-testkit" % akkaStreamVersion,
-  "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpVersion
+  "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpVersion,
+  "org.mockito" % "mockito-all" % "1.8.4" % "test"
 )
