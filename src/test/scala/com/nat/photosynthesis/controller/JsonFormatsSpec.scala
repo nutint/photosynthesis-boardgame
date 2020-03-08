@@ -141,4 +141,55 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
       }
     }
   }
+
+  "DistanceFormat" - {
+    "read" - {
+      "should be able to read the following input" in {
+        val examples =
+          Table(
+            ("jsString", "expected"),
+            ("front 1", Front(1)),
+            ("Front 1", Front(1)),
+            ("Rear 1", Rear(1)),
+            ("Same", Same),
+            ("DifferentLine", DifferentLine)
+          )
+        forAll(examples) { (jsString, expected) =>
+          DistanceFormat.read(JsString(jsString)) shouldBe expected
+        }
+      }
+
+      "should error if input string is the different way around" in {
+        val examples =
+          Table(
+            "value",
+            "abd",
+            "front",
+            "front a b",
+            "front a",
+            "asdf asdf asdf"
+          )
+        forAll(examples) { strVal =>
+          verifyReadError[Distance](JsString(strVal), "invalid distance value: expected (same, differentline, front x, rear x)")
+        }
+      }
+    }
+    "write" - {
+      "should write decodable json" in {
+        val examples =
+          Table(
+            "ValidValues",
+            Front(1),
+            Rear(1),
+            Same,
+            DifferentLine
+          )
+        forAll(examples) { example =>
+          DistanceFormat.read(
+            DistanceFormat.write(example)
+          ) shouldBe example
+        }
+      }
+    }
+  }
 }
