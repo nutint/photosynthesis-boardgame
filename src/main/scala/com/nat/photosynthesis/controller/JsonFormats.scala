@@ -2,6 +2,8 @@ package com.nat.photosynthesis.controller
 
 import com.nat.photosynthesis.model._
 
+import scala.util._
+
 object JsonFormats {
 
   import spray.json.DefaultJsonProtocol._
@@ -50,6 +52,33 @@ object JsonFormats {
       case BoardLocationTier2 => "tier2"
       case BoardLocationTier3 => "tier3"
       case BoardLocationTier4 => "tier4"
+    })
+  }
+
+  implicit object DistanceFormat extends JsonFormat[Distance] {
+    val errorMsg = "invalid distance value: expected (same, differentline, front x, rear x)"
+    override def read(json: JsValue): Distance = json match {
+      case JsString(strVal) =>
+        strVal.trim.toLowerCase.split(" ").map(_.trim).toList match {
+        case st :: Nil => st match {
+          case "same" => Same
+          case "differentline" => DifferentLine
+          case fst => deserializationError(errorMsg)
+        }
+        case st :: nd :: Nil => (st, Try(nd.toInt)) match {
+          case ("front", Success(intVal)) => Front(intVal)
+          case ("rear", Success(intVal)) => Rear(intVal)
+          case (_, _) => deserializationError(errorMsg)
+        }
+        case _ => deserializationError(errorMsg)
+      }
+    }
+
+    override def write(obj: Distance): JsValue = JsString( obj match {
+      case f: Front => s"front ${f.d}"
+      case r: Rear => s"rear ${r.d}"
+      case Same => "same"
+      case DifferentLine => "differentline"
     })
   }
 
