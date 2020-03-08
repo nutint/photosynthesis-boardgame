@@ -107,4 +107,38 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
       case _ => assert(false)
     }
   }
+
+  "BoardLocationTierFormat" - {
+    "read" - {
+      "should be able to read the following json" in {
+        val examples =
+          Table(
+            ("jsonString", "expectedTier"),
+            ("tier1", BoardLocationTier1),
+            ("tier1  ", BoardLocationTier1),
+            ("tIer1", BoardLocationTier1),
+            ("tier2", BoardLocationTier2),
+            ("tier3", BoardLocationTier3),
+            ("tier4", BoardLocationTier4)
+          )
+
+        forAll(examples) { (tier, expectedTier) => {
+          BoardLocationTierFormat.read(JsString(tier)) shouldBe expectedTier
+        }}
+      }
+      "should fail if the input json is not correct string value" in {
+        verifyReadError[BoardLocationTier](JsString("abd"), "invalid board location tier value: expected (tier1, tier2, tier3, tier4)")
+      }
+      "should fail if the input json is not string" in {
+        verifyReadError[BoardLocationTier](JsNumber(123), "invalid board location tier value: expected string")
+      }
+    }
+    "write" - {
+      "should write decodable json" in {
+        BoardLocationTierFormat.read(
+          BoardLocationTierFormat.write(BoardLocationTier1)
+        ) shouldBe BoardLocationTier1
+      }
+    }
+  }
 }
