@@ -192,4 +192,41 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
       }
     }
   }
+
+  "PlantItemFormat" - {
+    "read" - {
+      "should be able to read the following json" in {
+        val examples =
+          Table(
+            ("jsonString", "expected"),
+            ("green seed", Seed(Green)),
+            ("green cooleddown-small-tree", CooledDownSmallTree(Green)),
+            ("green small-tree", SmallTree(Green)),
+            ("Green cooleddown-medium-tree", CooledDownMediumTree(Green)),
+            ("gReen medium-tree", MediumTree(Green)),
+            ("green cooleddown-large-tree", CooledDownLargeTree(Green)),
+            ("green large-tree", LargeTree(Green))
+          )
+        forAll(examples) { (jsString, expected) =>
+          PlantItemFormat.read(JsString(jsString)) shouldBe expected
+        }
+      }
+
+      "should fail if enter the following input" in {
+        val examples =
+          Table(
+            "failExample",
+            "green something",
+            "yellow someting-else",
+            "blue abcd eftg",
+            "adsfasdf asdfsadf",
+            "asdfsadf medium-tree"
+          )
+        forAll(examples) { failExample =>
+          verifyReadError[PlantItem](JsString(failExample), "invalid plant item value: expected example 'green seed', 'yellow medium-tree', 'blue cooleddown-medium-tree")
+        }
+        verifyReadError[PlantItem](JsNumber(123), "invalid plant item value: expected example 'green seed', 'yellow medium-tree', 'blue cooleddown-medium-tree")
+      }
+    }
+  }
 }

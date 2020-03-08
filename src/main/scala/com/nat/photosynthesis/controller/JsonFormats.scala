@@ -82,6 +82,34 @@ object JsonFormats {
     })
   }
 
+  implicit object PlantItemFormat extends JsonFormat[PlantItem] {
+    val errorMsg = "invalid plant item value: expected example 'green seed', 'yellow medium-tree', 'blue cooleddown-medium-tree"
+    override def read(json: JsValue): PlantItem = json match {
+      case JsString(strVal) => strVal.trim.toLowerCase.split(" ").map(_.trim).toList match {
+        case fst :: snd :: Nil => {
+          Try(PlantTypeFormat.read(JsString(fst))) match {
+            case Success(plantType) =>
+              snd match {
+                case "seed" => Seed(plantType)
+                case "cooleddown-small-tree" => CooledDownSmallTree(plantType)
+                case "small-tree" => SmallTree(plantType)
+                case "cooleddown-medium-tree" => CooledDownMediumTree(plantType)
+                case "medium-tree" => MediumTree(plantType)
+                case "cooleddown-large-tree" => CooledDownLargeTree(plantType)
+                case "large-tree" => LargeTree(plantType)
+                case _ => deserializationError(errorMsg)
+              }
+            case Failure(_) => deserializationError(errorMsg)
+          }
+        }
+        case _ => deserializationError(errorMsg)
+      }
+      case _ => deserializationError(errorMsg)
+    }
+
+    override def write(obj: PlantItem): JsValue = ???
+  }
+
   implicit val boardLocationFormat = jsonFormat3(BoardLocation.apply)
   implicit val playerFormat = jsonFormat2(Player.apply)
 }
