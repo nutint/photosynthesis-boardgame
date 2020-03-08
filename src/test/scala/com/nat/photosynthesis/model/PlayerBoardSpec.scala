@@ -26,10 +26,18 @@ class PlayerBoardSpec extends FreeSpec with Matchers {
   }
 
   "putBack" - {
-    "should ok if there is available space" in {
+    "should be full if there is no available space" in {
       Player("John", Green).initBoard
-        .withdrawResource(Resource(SmallTree(Green), 0))
-        .map(_.depositResource(SmallTree(Green))) shouldBe Player("John", Green).initBoard
+        .depositResource(SmallTree(Green)) shouldBe Left("Already full")
+    }
+
+    "should be able to put back if there is available space" in {
+      val availableSpacePlantStore = PlantStore(Green).copy(smallTreeStore = StoreSpace(1, 2, 3, 4).copy(currItem = 1))
+      val putBackSpacePlantStore = availableSpacePlantStore.putBack(SmallTree(Green))
+      val playerBoard = Player("John", Green).initBoard.copy(store = availableSpacePlantStore)
+
+      playerBoard
+        .depositResource(SmallTree(Green)) shouldBe Right(playerBoard.copy(store = putBackSpacePlantStore.toOption.get))
     }
   }
 
