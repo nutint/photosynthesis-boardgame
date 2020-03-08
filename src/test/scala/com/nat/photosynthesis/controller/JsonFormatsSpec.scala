@@ -41,6 +41,11 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
         verifyReadError[PlantType](JsNumber(1), "invalid plant type value: expected string")
       }
     }
+    "write" - {
+      "should be able to write decodable json" in {
+        PlantTypeFormat.read(PlantTypeFormat.write(Green)) shouldBe Green
+      }
+    }
   }
 
   "boardLocationFormat" - {
@@ -53,6 +58,15 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
       "should throw error when decode fail" in {
         val sourceString = """{ "y": 2, "z": 3 }""".parseJson
         verifyReadError[BoardLocation](sourceString, "Object is missing required member 'x'")
+      }
+    }
+
+    "write" - {
+      "should write decodable json" in {
+        val expectedBoardLocation = BoardLocation(1, 2, 3)
+        boardLocationFormat.read(
+          boardLocationFormat.write(expectedBoardLocation)
+        ) shouldBe expectedBoardLocation
       }
     }
   }
@@ -73,6 +87,15 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
       "should fail if unable to decode plantType" in {
         val sourceJson = """{ "name": "John", "plantType": "greeeen"}""".parseJson
         verifyReadError[Player](sourceJson, "invalid plant type value: expected (green, yellow, blue, orange)")
+      }
+    }
+
+    "write" - {
+      "should be able to write decodable json" in {
+        val expectedPlayer = Player("John", Green)
+        playerFormat.read(
+          playerFormat.write(expectedPlayer)
+        ) shouldBe expectedPlayer
       }
     }
 

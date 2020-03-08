@@ -14,7 +14,12 @@ object JsonFormats {
   }
 
   implicit object PlantTypeFormat extends JsonFormat[PlantType] {
-    override def write(plantType: PlantType): JsValue = ???
+    override def write(plantType: PlantType): JsValue = JsString(plantType match {
+      case Green => "green"
+      case Yellow => "yellow"
+      case Orange => "orange"
+      case Blue => "blue"
+    })
 
     override def read(json: JsValue): PlantType = json match {
       case JsString(str) => str.trim.toLowerCase match {
