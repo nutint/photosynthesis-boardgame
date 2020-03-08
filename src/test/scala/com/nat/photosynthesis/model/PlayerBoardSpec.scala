@@ -28,7 +28,7 @@ class PlayerBoardSpec extends FreeSpec with Matchers {
   "putBack" - {
     "should be full if there is no available space" in {
       Player("John", Green).initBoard
-        .depositResource(SmallTree(Green)) shouldBe Left("Already full")
+        .putBack(SmallTree(Green)) shouldBe Left("Already full")
     }
 
     "should be able to put back if there is available space" in {
@@ -37,7 +37,7 @@ class PlayerBoardSpec extends FreeSpec with Matchers {
       val playerBoard = Player("John", Green).initBoard.copy(store = availableSpacePlantStore)
 
       playerBoard
-        .depositResource(SmallTree(Green)) shouldBe Right(playerBoard.copy(store = putBackSpacePlantStore.toOption.get))
+        .putBack(SmallTree(Green)) shouldBe Right(playerBoard.copy(store = putBackSpacePlantStore.toOption.get))
     }
   }
 
@@ -58,15 +58,16 @@ class PlayerBoardSpec extends FreeSpec with Matchers {
         .buy(Seed(Green)) shouldBe Left("Not available")
     }
 
-    "should success if there is enough sun" in {
+    "should deducted sun, deduct deduct store space, and add to the stock if there is enough sun" in {
       val johnBoard = Player("John", Green).initBoard.copy(sun = 9)
       val johnStore = johnBoard.store
       val price = johnStore.getPrice(Seed(Green)).toOption.get
       johnBoard
         .buy(Seed(Green)) shouldBe Right(johnBoard.copy(
           store = johnStore.take(Seed(Green)).toOption.get,
-          sun = johnBoard.sun - price)
-        )
+          sun = johnBoard.sun - price,
+          stock = johnBoard.stock :+ Seed(Green)
+        ))
     }
   }
 }
