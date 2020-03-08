@@ -101,13 +101,6 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
 
   }
 
-  private def verifyReadError[A](sourceJson: JsValue, expectedError: String)(implicit jsonFormat: JsonFormat[A]): Any = {
-    Try(jsonFormat.read(sourceJson)) match {
-      case Failure(exception) => exception.getMessage shouldBe expectedError
-      case _ => assert(false)
-    }
-  }
-
   "BoardLocationTierFormat" - {
     "read" - {
       "should be able to read the following json" in {
@@ -320,6 +313,62 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
           ) shouldBe example
         }
       }
+    }
+  }
+
+  "SunLocationFormat" - {
+    "read" - {
+      "should be able to read the following input" in {
+        val examples =
+          Table(
+            ("jsonInput", "expected"),
+            (0, SunLocation0),
+            (1, SunLocation1),
+            (2, SunLocation2),
+            (3, SunLocation3),
+            (4, SunLocation4),
+            (5, SunLocation5)
+          )
+        forAll(examples) { (example, expected) =>
+          SunLocationFormat.read(JsNumber(example)) shouldBe expected
+        }
+      }
+      "should be failed with the following input" in {
+        val examples =
+          Table(
+            "jsonInput",
+            JsNumber(9),
+            JsString("abc"),
+          )
+        forAll(examples) { (example) =>
+          verifyReadError[SunLocation](example, "invalid sun location value: expected 0-5")
+        }
+      }
+    }
+    "write" - {
+      "should be able to write decodable json" in {
+        val examples =
+          Table(
+            "example",
+            SunLocation0,
+            SunLocation1,
+            SunLocation2,
+            SunLocation3,
+            SunLocation4,
+            SunLocation5
+          )
+        forAll(examples) { example =>
+          SunLocationFormat.read(
+            SunLocationFormat.write(example)
+          ) shouldBe example
+        }
+      }
+    }
+  }
+  private def verifyReadError[A](sourceJson: JsValue, expectedError: String)(implicit jsonFormat: JsonFormat[A]): Any = {
+    Try(jsonFormat.read(sourceJson)) match {
+      case Failure(exception) => exception.getMessage shouldBe expectedError
+      case _ => assert(false)
     }
   }
 }

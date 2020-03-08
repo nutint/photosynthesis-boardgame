@@ -2,6 +2,7 @@ package com.nat.photosynthesis.controller
 
 import com.nat.photosynthesis.model._
 
+import scala.math.BigDecimal
 import scala.util._
 
 object JsonFormats {
@@ -148,6 +149,30 @@ object JsonFormats {
       case TokenTierTwo(v) => s"tier2 $v"
       case TokenTierThree(v) => s"tier3 $v"
       case TokenTierFour(v) => s"tier4 $v"
+    })
+  }
+
+  implicit object SunLocationFormat extends JsonFormat[SunLocation] {
+    val errorMsg = "invalid sun location value: expected 0-5"
+    override def read(json: JsValue): SunLocation = json match {
+      case JsNumber(n) => n.toInt match {
+        case 0 => SunLocation0
+        case 1 => SunLocation1
+        case 2 => SunLocation2
+        case 3 => SunLocation3
+        case 4 => SunLocation4
+        case 5 => SunLocation5
+        case _ => deserializationError(errorMsg)
+      }
+      case _ => deserializationError(errorMsg)
+    }
+    override def write(obj: SunLocation): JsValue = JsNumber(obj match {
+      case SunLocation0 => 0
+      case SunLocation1 => 1
+      case SunLocation2 => 2
+      case SunLocation3 => 3
+      case SunLocation4 => 4
+      case SunLocation5 => 5
     })
   }
 
