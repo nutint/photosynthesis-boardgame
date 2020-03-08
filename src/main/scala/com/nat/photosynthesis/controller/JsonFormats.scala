@@ -16,12 +16,16 @@ object JsonFormats {
   }
 
   implicit object PlantTypeFormat extends JsonFormat[PlantType] {
-    override def write(plantType: PlantType): JsValue = JsString(plantType match {
-      case Green => "green"
-      case Yellow => "yellow"
-      case Orange => "orange"
-      case Blue => "blue"
-    })
+    override def write(plantType: PlantType): JsValue = JsString(plantTypeToString(plantType))
+
+    def plantTypeToString(plantType: PlantType) = {
+      plantType match {
+        case Green => "green"
+        case Yellow => "yellow"
+        case Orange => "orange"
+        case Blue => "blue"
+      }
+    }
 
     override def read(json: JsValue): PlantType = json match {
       case JsString(str) => str.trim.toLowerCase match {
@@ -107,7 +111,18 @@ object JsonFormats {
       case _ => deserializationError(errorMsg)
     }
 
-    override def write(obj: PlantItem): JsValue = ???
+    override def write(obj: PlantItem): JsValue = {
+      val plantTypeString = PlantTypeFormat.plantTypeToString(obj.plantType)
+      JsString(obj match {
+        case _: Seed => s"$plantTypeString seed"
+        case _: CooledDownSmallTree => s"$plantTypeString cooleddown-small-tree"
+        case _: SmallTree => s"$plantTypeString small-tree"
+        case _: CooledDownMediumTree => s"$plantTypeString cooleddown-medium-tree"
+        case _: MediumTree => s"$plantTypeString medium-tree"
+        case _: CooledDownLargeTree => s"$plantTypeString cooleddown-large-tree"
+        case _: LargeTree => s"$plantTypeString large-tree"
+      })
+    }
   }
 
   implicit val boardLocationFormat = jsonFormat3(BoardLocation.apply)
