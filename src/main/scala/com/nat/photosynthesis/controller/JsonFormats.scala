@@ -8,12 +8,6 @@ object JsonFormats {
   import spray.json.DefaultJsonProtocol._
   import spray.json._
 
-  implicit object GameEngineFormats extends JsonFormat[GameEngine] {
-    override def write(obj: GameEngine): JsValue = ???
-
-    override def read(json: JsValue): GameEngine = ???
-  }
-
   implicit object PlantTypeFormat extends JsonFormat[PlantType] {
     override def write(plantType: PlantType): JsValue = JsString(plantTypeToString(plantType))
 
@@ -199,4 +193,28 @@ object JsonFormats {
   implicit val gameEnginePlacingFirst2TreesStateFormat = jsonFormat4(GameEnginePlacingFirst2TreesState.apply)
   implicit val gameEnginePlayingFormat = jsonFormat7(GameEnginePlaying.apply)
   implicit val gameEngineOverFormat = jsonFormat2(GameEngineOver.apply)
+
+  implicit object GameEngineFormats extends JsonFormat[GameEngine] {
+    case class GameEngineStateDetector(state: String)
+    implicit val gesdFormat = jsonFormat1(GameEngineStateDetector.apply)
+
+    override def write(obj: GameEngine): JsValue = {
+      val (json, key) = (obj match {
+        case ge: GameEngineRegistrationState => (gameEngineRegistrationStateFormat.write(ge), "registration")
+        case ge: GameEnginePlacingFirst2TreesState => (gameEnginePlacingFirst2TreesStateFormat.write(ge), "placing2trees")
+        case ge: GameEnginePlaying => (gameEnginePlayingFormat.write(ge), "playing")
+        case ge: GameEngineOver => (gameEngineOverFormat.write(ge), "over")
+      })
+      JsObject(json.asJsObject.fields + ("state" -> key))
+    }
+
+    override def read(json: JsValue): GameEngine = gesdFormat.read(json) match {
+      case GameEngineStateDetector(state) => state.trim.toLowerCase() match {
+        case "registration" => gameEngineRegistrationStateFormat.read(json)
+        case "placing2trees" => gameEnginePlacingFirst2TreesStateFormat.read(json)
+        case "playing" => gameEnginePlayingFormat.read(json)
+        case "over" => gameEngineOverFormat.read(json)
+      }
+    }
+  }
 }
