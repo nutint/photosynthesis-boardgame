@@ -426,60 +426,71 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
         )
       )
 
-      "should be able to decode the following input" in {
-        val jsonObj =
-          """
-            |{
-            |  "state": "registration",
-            |  "players": [
-            |    { "name": "John", "plantType": "green"},
-            |    { "name": "Marry", "plantType": "yellow"},
-            |    { "name": "Madonna", "plantType": "blue"}
-            |  ],
-            |  "tokenStock": {
-            |    "tier1": ["tier1 12", "tier1 13", "tier1 11"],
-            |    "tier2": ["tier2 22", "tier2 21", "tier2 23"],
-            |    "tier3": ["tier3 25", "tier3 27", "tier3 28"],
-            |    "tier4": ["tier4 30", "tier4 31", "tier4 32"]
-            |  }
-            |}
-            |""".stripMargin.parseJson
+      "read" - {
 
-        gameEngineRegistrationStateFormat.read(jsonObj) shouldBe expectedRegistration
+        "should be able to decode the following input" in {
+          val jsonObj =
+            """
+              |{
+              |  "state": "registration",
+              |  "players": [
+              |    { "name": "John", "plantType": "green"},
+              |    { "name": "Marry", "plantType": "yellow"},
+              |    { "name": "Madonna", "plantType": "blue"}
+              |  ],
+              |  "tokenStock": {
+              |    "tier1": ["tier1 12", "tier1 13", "tier1 11"],
+              |    "tier2": ["tier2 22", "tier2 21", "tier2 23"],
+              |    "tier3": ["tier3 25", "tier3 27", "tier3 28"],
+              |    "tier4": ["tier4 30", "tier4 31", "tier4 32"]
+              |  }
+              |}
+              |""".stripMargin.parseJson
+
+          gameEngineRegistrationStateFormat.read(jsonObj) shouldBe expectedRegistration
+          GameEngineFormats.read(jsonObj) shouldBe expectedRegistration
+        }
+
+        "should fail if token is in the wrong tier" in {
+          val jsonObj =
+            """
+              |{
+              |  "state": "registration",
+              |  "players": [
+              |    { "name": "John", "plantType": "green"},
+              |    { "name": "Marry", "plantType": "yellow"},
+              |    { "name": "Madonna", "plantType": "blue"}
+              |  ],
+              |  "tokenStock": {
+              |    "tier1": ["tier1 12", "tier1 13", "tier1 11"],
+              |    "tier2": ["tier2 22", "tier2 21", "tier2 23"],
+              |    "tier3": ["tier3 25", "tier3 27", "tier3 28"],
+              |    "tier4": ["tier4 30", "tier4 31", "tier3 32"]
+              |  }
+              |}
+              |""".stripMargin.parseJson
+
+          verifyReadError[Registration](jsonObj, "expected scoring token tier4")
+        }
+
       }
 
-      "should fail if token is in the wrong tier" in {
-        val jsonObj =
-          """
-            |{
-            |  "state": "registration",
-            |  "players": [
-            |    { "name": "John", "plantType": "green"},
-            |    { "name": "Marry", "plantType": "yellow"},
-            |    { "name": "Madonna", "plantType": "blue"}
-            |  ],
-            |  "tokenStock": {
-            |    "tier1": ["tier1 12", "tier1 13", "tier1 11"],
-            |    "tier2": ["tier2 22", "tier2 21", "tier2 23"],
-            |    "tier3": ["tier3 25", "tier3 27", "tier3 28"],
-            |    "tier4": ["tier4 30", "tier4 31", "tier3 32"]
-            |  }
-            |}
-            |""".stripMargin.parseJson
+      "write" - {
+        "should be able to write and read" in {
+          gameEngineRegistrationStateFormat.read(
+            gameEngineRegistrationStateFormat.write(expectedRegistration)
+          ) shouldBe expectedRegistration
 
-        verifyReadError[Registration](jsonObj, "expected scoring token tier4")
-      }
-
-      "should be able to write and read" in {
-        gameEngineRegistrationStateFormat.read(
-          gameEngineRegistrationStateFormat.write(expectedRegistration)
-        ) shouldBe expectedRegistration
+          GameEngineFormats.read(
+            GameEngineFormats.write(expectedRegistration)
+          ) shouldBe expectedRegistration
+        }
       }
     }
 
     "gameEnginePlacingFirst2TreesStateFormat" - {
 
-      val expectedRegistration = SettingUp(
+      val expectedSettingUp = SettingUp(
         activePlayerPosition = 0,
         playerBoards = List(Player("John", Green), Player("Marry", Yellow), Player("Madonna", Blue)).map(_.initBoard),
         forestBlocks = Nil,
@@ -491,55 +502,132 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
         )
       )
 
-//      "should be able to decode the following input" in {
-//        val jsonObj =
-//          """
-//            |{
-//            |  "state": "registration",
-//            |  "players": [
-//            |    { "name": "John", "plantType": "green"},
-//            |    { "name": "Marry", "plantType": "yellow"},
-//            |    { "name": "Madonna", "plantType": "blue"}
-//            |  ],
-//            |  "tokenStock": {
-//            |    "tier1": ["tier1 12", "tier1 13", "tier1 11"],
-//            |    "tier2": ["tier2 22", "tier2 21", "tier2 23"],
-//            |    "tier3": ["tier3 25", "tier3 27", "tier3 28"],
-//            |    "tier4": ["tier4 30", "tier4 31", "tier4 32"]
-//            |  }
-//            |}
-//            |""".stripMargin.parseJson
-//
-//        gameEngineRegistrationStateFormat.read(jsonObj) shouldBe expectedRegistration
-//      }
-//
-//      "should fail if token is in the wrong tier" in {
-//        val jsonObj =
-//          """
-//            |{
-//            |  "state": "registration",
-//            |  "players": [
-//            |    { "name": "John", "plantType": "green"},
-//            |    { "name": "Marry", "plantType": "yellow"},
-//            |    { "name": "Madonna", "plantType": "blue"}
-//            |  ],
-//            |  "tokenStock": {
-//            |    "tier1": ["tier1 12", "tier1 13", "tier1 11"],
-//            |    "tier2": ["tier2 22", "tier2 21", "tier2 23"],
-//            |    "tier3": ["tier3 25", "tier3 27", "tier3 28"],
-//            |    "tier4": ["tier4 30", "tier4 31", "tier3 32"]
-//            |  }
-//            |}
-//            |""".stripMargin.parseJson
-//
-//        verifyReadError[Registration](jsonObj, "expected scoring token tier4")
-//      }
-//
-//      "should be able to write and read" in {
-//        gameEngineRegistrationStateFormat.read(
-//          gameEngineRegistrationStateFormat.write(expectedRegistration)
-//        ) shouldBe expectedRegistration
-//      }
+      "read" in {
+
+        import spray.json.DefaultJsonProtocol._
+        import spray.json._
+
+        val jsonObj =
+          s"""
+             |{
+             |  "state": "settingup",
+             |  "activePlayerPosition": 0,
+             |  "playerBoards": ${expectedSettingUp.playerBoards.map(playerBoard => playerBoardFormat.write(playerBoard)).toJson},
+             |  "forestBlocks": ${expectedSettingUp.forestBlocks.map(forestBlock => forestBlockFormat.write(forestBlock)).toJson},
+             |  "tokenStock": {
+             |    "tier1": ["tier1 12", "tier1 13", "tier1 11"],
+             |    "tier2": ["tier2 22", "tier2 21", "tier2 23"],
+             |    "tier3": ["tier3 25", "tier3 27", "tier3 28"],
+             |    "tier4": ["tier4 30", "tier4 31", "tier4 32"]
+             |  }
+             |}
+             |""".stripMargin.parseJson
+
+        gameEnginePlacingFirst2TreesStateFormat.read(jsonObj) shouldBe expectedSettingUp
+        GameEngineFormats.read(jsonObj) shouldBe expectedSettingUp
+      }
+
+      "write" in {
+        gameEnginePlacingFirst2TreesStateFormat.read(
+          gameEnginePlacingFirst2TreesStateFormat.write(expectedSettingUp)
+        ) shouldBe expectedSettingUp
+
+        GameEngineFormats.read(
+          GameEngineFormats.write(expectedSettingUp)
+        ) shouldBe expectedSettingUp
+      }
+    }
+
+    "gameEnginePlayingFormat" - {
+
+      val expectedPlaying = Playing(
+        activePlayerPosition = 0,
+        startingPlayer = 0,
+        sunLocation = SunLocation0,
+        day = 0,
+        playerBoards = List(Player("John", Green), Player("Marry", Yellow), Player("Madonna", Blue)).map(_.initBoard),
+        forestBlocks = Nil,
+        tokenStock = TokenStock(
+          List(12, 13, 11).map(ScoringTokenTierOne),
+          List(22, 21, 23).map(ScoringTokenTierTwo),
+          List(25, 27, 28).map(ScoringTokenTierThree),
+          List(30, 31, 32).map(ScoringTokenTierFour)
+        )
+      )
+
+      "read" in {
+
+        import spray.json.DefaultJsonProtocol._
+        import spray.json._
+
+        val jsonObj =
+          s"""
+             |{
+             |  "state": "playing",
+             |  "activePlayerPosition": 0,
+             |  "startingPlayer": 0,
+             |  "sunLocation": 0,
+             |  "day": 0,
+             |  "playerBoards": ${expectedPlaying.playerBoards.map(playerBoard => playerBoardFormat.write(playerBoard)).toJson},
+             |  "forestBlocks": ${expectedPlaying.forestBlocks.map(forestBlock => forestBlockFormat.write(forestBlock)).toJson},
+             |  "tokenStock": {
+             |    "tier1": ["tier1 12", "tier1 13", "tier1 11"],
+             |    "tier2": ["tier2 22", "tier2 21", "tier2 23"],
+             |    "tier3": ["tier3 25", "tier3 27", "tier3 28"],
+             |    "tier4": ["tier4 30", "tier4 31", "tier4 32"]
+             |  }
+             |}
+             |""".stripMargin.parseJson
+
+        gameEnginePlayingFormat.read(jsonObj) shouldBe expectedPlaying
+        GameEngineFormats.read(jsonObj) shouldBe expectedPlaying
+      }
+
+      "write" in {
+        gameEnginePlayingFormat.read(
+          gameEnginePlayingFormat.write(expectedPlaying)
+        ) shouldBe expectedPlaying
+
+        GameEngineFormats.read(
+          GameEngineFormats.write(expectedPlaying)
+        ) shouldBe expectedPlaying
+      }
+    }
+
+    "gameEngineOverFormat" - {
+
+      val expectedGameOver = GameOver(
+        playerBoards = List(Player("John", Green), Player("Marry", Yellow), Player("Madonna", Blue)).map(_.initBoard),
+        forestBlocks = Nil
+      )
+
+      "read" in {
+
+        import spray.json.DefaultJsonProtocol._
+        import spray.json._
+
+        val jsonObj =
+          s"""
+             |{
+             |  "state": "over",
+             |  "playerBoards": ${expectedGameOver.playerBoards.map(playerBoard => playerBoardFormat.write(playerBoard)).toJson},
+             |  "forestBlocks": ${expectedGameOver.forestBlocks.map(forestBlock => forestBlockFormat.write(forestBlock)).toJson}
+             |}
+             |""".stripMargin.parseJson
+
+        gameEngineOverFormat.read(jsonObj) shouldBe expectedGameOver
+        GameEngineFormats.read(jsonObj) shouldBe expectedGameOver
+      }
+
+      "write" in {
+        gameEngineOverFormat.read(
+          gameEngineOverFormat.write(expectedGameOver)
+        ) shouldBe expectedGameOver
+
+        GameEngineFormats.read(
+          GameEngineFormats.write(expectedGameOver)
+        ) shouldBe expectedGameOver
+      }
     }
   }
 }

@@ -200,22 +200,20 @@ object JsonFormats {
     case class GameEngineStateDetector(state: String)
     implicit val gesdFormat = jsonFormat1(GameEngineStateDetector.apply)
 
-    override def write(obj: GameEngine): JsValue = ???
-//
-//    override def write(obj: GameEngine): JsValue = {
-//      val (json, key) = (obj match {
-//        case ge: GameEngineRegistrationState => (gameEngineRegistrationStateFormat.write(ge), "registration")
-//        case ge: GameEnginePlacingFirst2TreesState => (gameEnginePlacingFirst2TreesStateFormat.write(ge), "placing2trees")
-//        case ge: GameEnginePlaying => (gameEnginePlayingFormat.write(ge), "playing")
-//        case ge: GameEngineOver => (gameEngineOverFormat.write(ge), "over")
-//      })
-//      JsObject(json.asJsObject.fields + ("state" -> key))
-//    }
+    override def write(obj: GameEngine): JsValue = {
+      val (json, state) = (obj match {
+        case ge: Registration => (gameEngineRegistrationStateFormat.write(ge), "registration")
+        case ge: SettingUp => (gameEnginePlacingFirst2TreesStateFormat.write(ge), "settingup")
+        case ge: Playing => (gameEnginePlayingFormat.write(ge), "playing")
+        case ge: GameOver => (gameEngineOverFormat.write(ge), "over")
+      })
+      JsObject(json.asJsObject.fields + ("state" -> JsString(state)))
+    }
 
     override def read(json: JsValue): GameEngine = gesdFormat.read(json) match {
       case GameEngineStateDetector(state) => state.trim.toLowerCase() match {
         case "registration" => gameEngineRegistrationStateFormat.read(json)
-        case "placing2trees" => gameEnginePlacingFirst2TreesStateFormat.read(json)
+        case "settingup" => gameEnginePlacingFirst2TreesStateFormat.read(json)
         case "playing" => gameEnginePlayingFormat.read(json)
         case "over" => gameEngineOverFormat.read(json)
       }
