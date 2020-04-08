@@ -1,4 +1,4 @@
-package com.nat.photosynthesis.model
+package com.nat.photosynthesis.service.model
 
 object ScoreEngine {
   def calculatePlayerScore(player: Player, forestBlocks: List[Block], sunLocation: SunLocation): Int = {

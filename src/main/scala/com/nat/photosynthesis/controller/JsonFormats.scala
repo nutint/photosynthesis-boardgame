@@ -1,6 +1,6 @@
 package com.nat.photosynthesis.controller
 
-import com.nat.photosynthesis.model._
+import com.nat.photosynthesis.service.model._
 import scala.util._
 
 object JsonFormats {

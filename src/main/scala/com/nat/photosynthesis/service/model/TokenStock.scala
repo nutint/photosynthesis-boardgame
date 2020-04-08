@@ -1,4 +1,4 @@
-package com.nat.photosynthesis.model
+package com.nat.photosynthesis.service.model
 
 case class TokenStock(
   tier1: List[ScoringTokenTierOne],

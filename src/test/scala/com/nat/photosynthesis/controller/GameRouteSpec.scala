@@ -1,7 +1,7 @@
 package com.nat.photosynthesis.controller
 
 import akka.http.scaladsl.testkit.ScalatestRouteTest
-import com.nat.photosynthesis.model.GameEngine
+import com.nat.photosynthesis.service.model.GameEngine
 import org.scalatest.{FreeSpec, Matchers}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar

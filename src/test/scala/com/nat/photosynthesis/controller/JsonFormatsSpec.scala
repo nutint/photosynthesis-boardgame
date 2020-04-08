@@ -1,7 +1,7 @@
 package com.nat.photosynthesis.controller
 
 import org.scalatest.prop.TableDrivenPropertyChecks._
-import com.nat.photosynthesis.model._
+import com.nat.photosynthesis.service.model._
 import org.scalatest.{FreeSpec, Matchers}
 
 import scala.util.{Failure, Try}
