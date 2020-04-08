@@ -1,6 +1,8 @@
 package com.nat.photosynthesis.controller
 
 import com.nat.photosynthesis.service.model._
+import com.nat.photosynthesis.service.model.engine.{GameEngine, GameOver, Playing, Registration, SettingUp}
+
 import scala.util._
 
 object JsonFormats {

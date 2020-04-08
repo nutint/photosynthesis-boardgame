@@ -1,4 +1,6 @@
-package com.nat.photosynthesis.service.model
+package com.nat.photosynthesis.service.model.engine
+
+import com.nat.photosynthesis.service.model._
 
 sealed trait GameEngine
 
