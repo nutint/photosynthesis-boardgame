@@ -2,6 +2,7 @@ package com.nat.photosynthesis.controller
 
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import com.nat.photosynthesis.service.model._
+import com.nat.photosynthesis.service.model.engine._
 import org.scalatest.{FreeSpec, Matchers}
 
 import scala.util.{Failure, Try}
@@ -254,15 +255,54 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
             |}
             |""".stripMargin.parseJson
 
-        storeSpaceFormat.read(jsonString) shouldBe StoreSpace(List(1, 2, 3, 4), 0)
+        storeSpaceFormat[Seed].read(jsonString) shouldBe StoreSpace[Seed](List(1, 2, 3, 4), 0)
       }
     }
     "write" - {
       "should be able to write decodable json" in {
-        val expectedStoreSpace = StoreSpace(List(1, 2, 3, 4), 0)
-        storeSpaceFormat.read(
-          storeSpaceFormat.write(expectedStoreSpace)
+        val expectedStoreSpace = StoreSpace[Seed](List(1, 2, 3, 4), 0)
+        storeSpaceFormat[Seed].read(
+          storeSpaceFormat[Seed].write(expectedStoreSpace)
         ) shouldBe expectedStoreSpace
+      }
+    }
+  }
+
+  "plantStoreFormat" - {
+
+    val seedStoreSpace = StoreSpace[Seed](List(1, 2, 3, 4), 0)
+    val smallTreeStoreSpace = StoreSpace[SmallTree](List(1, 2, 3, 4), 0)
+    val mediumTreeStoreSpace = StoreSpace[MediumTree](List(1, 2, 3, 4), 0)
+    val largeTreeStoreSpace = StoreSpace[LargeTree](List(1, 2, 3, 4), 0)
+
+    val expectedPlantStore = PlantStore(
+      plantType = Green,
+      seedStore = seedStoreSpace,
+      smallTreeStore = smallTreeStoreSpace,
+      mediumTreeStore = mediumTreeStoreSpace,
+      largeTreeStore = largeTreeStoreSpace
+    )
+    "read" - {
+      "should be able to read the following input" in {
+        val jsonString =
+          s"""
+            |{
+            |  "plantType": "green",
+            |  "seedStore": ${storeSpaceFormat[Seed].write(seedStoreSpace)},
+            |  "smallTreeStore": ${storeSpaceFormat[SmallTree].write(smallTreeStoreSpace)},
+            |  "mediumTreeStore": ${storeSpaceFormat[MediumTree].write(mediumTreeStoreSpace)},
+            |  "largeTreeStore": ${storeSpaceFormat[LargeTree].write(largeTreeStoreSpace)}
+            |}
+            |""".stripMargin.parseJson
+
+        plantStoreFormat.read(jsonString) shouldBe expectedPlantStore
+      }
+    }
+    "write" - {
+      "should be able to write decodable json" in {
+        plantStoreFormat.read(
+          plantStoreFormat.write(expectedPlantStore)
+        ) shouldBe expectedPlantStore
       }
     }
   }
@@ -369,6 +409,137 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
     Try(jsonFormat.read(sourceJson)) match {
       case Failure(exception) => exception.getMessage shouldBe expectedError
       case _ => assert(false)
+    }
+  }
+
+  "GameEngineFormats" - {
+
+    "gameEngineRegistrationStateFormat" - {
+
+      val expectedRegistration = Registration(
+        Player("John", Green) :: Player("Marry", Yellow) :: Player("Madonna", Blue) :: Nil,
+        TokenStock(
+          List(12, 13, 11).map(ScoringTokenTierOne),
+          List(22, 21, 23).map(ScoringTokenTierTwo),
+          List(25, 27, 28).map(ScoringTokenTierThree),
+          List(30, 31, 32).map(ScoringTokenTierFour)
+        )
+      )
+
+      "should be able to decode the following input" in {
+        val jsonObj =
+          """
+            |{
+            |  "state": "registration",
+            |  "players": [
+            |    { "name": "John", "plantType": "green"},
+            |    { "name": "Marry", "plantType": "yellow"},
+            |    { "name": "Madonna", "plantType": "blue"}
+            |  ],
+            |  "tokenStock": {
+            |    "tier1": ["tier1 12", "tier1 13", "tier1 11"],
+            |    "tier2": ["tier2 22", "tier2 21", "tier2 23"],
+            |    "tier3": ["tier3 25", "tier3 27", "tier3 28"],
+            |    "tier4": ["tier4 30", "tier4 31", "tier4 32"]
+            |  }
+            |}
+            |""".stripMargin.parseJson
+
+        gameEngineRegistrationStateFormat.read(jsonObj) shouldBe expectedRegistration
+      }
+
+      "should fail if token is in the wrong tier" in {
+        val jsonObj =
+          """
+            |{
+            |  "state": "registration",
+            |  "players": [
+            |    { "name": "John", "plantType": "green"},
+            |    { "name": "Marry", "plantType": "yellow"},
+            |    { "name": "Madonna", "plantType": "blue"}
+            |  ],
+            |  "tokenStock": {
+            |    "tier1": ["tier1 12", "tier1 13", "tier1 11"],
+            |    "tier2": ["tier2 22", "tier2 21", "tier2 23"],
+            |    "tier3": ["tier3 25", "tier3 27", "tier3 28"],
+            |    "tier4": ["tier4 30", "tier4 31", "tier3 32"]
+            |  }
+            |}
+            |""".stripMargin.parseJson
+
+        verifyReadError[Registration](jsonObj, "expected scoring token tier4")
+      }
+
+      "should be able to write and read" in {
+        gameEngineRegistrationStateFormat.read(
+          gameEngineRegistrationStateFormat.write(expectedRegistration)
+        ) shouldBe expectedRegistration
+      }
+    }
+
+    "gameEnginePlacingFirst2TreesStateFormat" - {
+
+      val expectedRegistration = SettingUp(
+        activePlayerPosition = 0,
+        playerBoards = List(Player("John", Green), Player("Marry", Yellow), Player("Madonna", Blue)).map(_.initBoard),
+        forestBlocks = Nil,
+        tokenStock = TokenStock(
+          List(12, 13, 11).map(ScoringTokenTierOne),
+          List(22, 21, 23).map(ScoringTokenTierTwo),
+          List(25, 27, 28).map(ScoringTokenTierThree),
+          List(30, 31, 32).map(ScoringTokenTierFour)
+        )
+      )
+
+//      "should be able to decode the following input" in {
+//        val jsonObj =
+//          """
+//            |{
+//            |  "state": "registration",
+//            |  "players": [
+//            |    { "name": "John", "plantType": "green"},
+//            |    { "name": "Marry", "plantType": "yellow"},
+//            |    { "name": "Madonna", "plantType": "blue"}
+//            |  ],
+//            |  "tokenStock": {
+//            |    "tier1": ["tier1 12", "tier1 13", "tier1 11"],
+//            |    "tier2": ["tier2 22", "tier2 21", "tier2 23"],
+//            |    "tier3": ["tier3 25", "tier3 27", "tier3 28"],
+//            |    "tier4": ["tier4 30", "tier4 31", "tier4 32"]
+//            |  }
+//            |}
+//            |""".stripMargin.parseJson
+//
+//        gameEngineRegistrationStateFormat.read(jsonObj) shouldBe expectedRegistration
+//      }
+//
+//      "should fail if token is in the wrong tier" in {
+//        val jsonObj =
+//          """
+//            |{
+//            |  "state": "registration",
+//            |  "players": [
+//            |    { "name": "John", "plantType": "green"},
+//            |    { "name": "Marry", "plantType": "yellow"},
+//            |    { "name": "Madonna", "plantType": "blue"}
+//            |  ],
+//            |  "tokenStock": {
+//            |    "tier1": ["tier1 12", "tier1 13", "tier1 11"],
+//            |    "tier2": ["tier2 22", "tier2 21", "tier2 23"],
+//            |    "tier3": ["tier3 25", "tier3 27", "tier3 28"],
+//            |    "tier4": ["tier4 30", "tier4 31", "tier3 32"]
+//            |  }
+//            |}
+//            |""".stripMargin.parseJson
+//
+//        verifyReadError[Registration](jsonObj, "expected scoring token tier4")
+//      }
+//
+//      "should be able to write and read" in {
+//        gameEngineRegistrationStateFormat.read(
+//          gameEngineRegistrationStateFormat.write(expectedRegistration)
+//        ) shouldBe expectedRegistration
+//      }
     }
   }
 }

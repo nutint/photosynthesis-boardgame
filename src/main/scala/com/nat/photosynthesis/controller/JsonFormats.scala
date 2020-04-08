@@ -170,16 +170,16 @@ object JsonFormats {
     })
   }
 
-  implicit val tokenTierOneFormat: JsonFormat[ScoringTokenTierOne] = reuseFormat[ScoringTokenTierOne, ScoringToken](_.isInstanceOf[ScoringTokenTierOne])
-  implicit val tokenTierTwoFormat: JsonFormat[ScoringTokenTierTwo] = reuseFormat[ScoringTokenTierTwo, ScoringToken](_.isInstanceOf[ScoringTokenTierTwo])
-  implicit val tokenTierTreeFormat: JsonFormat[ScoringTokenTierThree] = reuseFormat[ScoringTokenTierThree, ScoringToken](_.isInstanceOf[ScoringTokenTierThree])
-  implicit val tokenTierFourFormat: JsonFormat[ScoringTokenTierFour] = reuseFormat[ScoringTokenTierFour, ScoringToken](_.isInstanceOf[ScoringTokenTierFour])
+  implicit val tokenTierOneFormat: JsonFormat[ScoringTokenTierOne] = reuseFormat[ScoringTokenTierOne, ScoringToken](_.isInstanceOf[ScoringTokenTierOne], "expected scoring token tier1")
+  implicit val tokenTierTwoFormat: JsonFormat[ScoringTokenTierTwo] = reuseFormat[ScoringTokenTierTwo, ScoringToken](_.isInstanceOf[ScoringTokenTierTwo], "expected scoring token tier2")
+  implicit val tokenTierTreeFormat: JsonFormat[ScoringTokenTierThree] = reuseFormat[ScoringTokenTierThree, ScoringToken](_.isInstanceOf[ScoringTokenTierThree], "expected scoring token tier3")
+  implicit val tokenTierFourFormat: JsonFormat[ScoringTokenTierFour] = reuseFormat[ScoringTokenTierFour, ScoringToken](_.isInstanceOf[ScoringTokenTierFour], "expected scoring token tier4")
 
-  def reuseFormat[A<:B, B](isKindOf: B => Boolean)(implicit superFormat: JsonFormat[B]): JsonFormat[A] = new JsonFormat[A] {
+  def reuseFormat[A<:B, B](isKindOf: B => Boolean, errorMsg: String)(implicit superFormat: JsonFormat[B]): JsonFormat[A] = new JsonFormat[A] {
     override def write(obj: A): JsValue = superFormat.write(obj)
     override def read(json: JsValue): A = superFormat.read(json) match {
       case t if isKindOf(t) => t.asInstanceOf[A]
-      case _ => deserializationError("abc")
+      case _ => deserializationError(errorMsg)
     }
   }
 
