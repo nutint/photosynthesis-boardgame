@@ -1,0 +1,41 @@
+@startuml
+scale 350 width
+
+state registration : players: List[Player]
+state registration : tokenStock: TokenStock
+
+state settingUp : plantingTreePlayer: Int
+state settingUp : playerBoards: List[PlayerBoard]
+state settingUp : forestBlocks: List[Block]
+state settingUp : tokenStock: TokenStock
+
+state playing : actionPlayer: Int,
+state playing : startingPlayer: Int,
+state playing : sunLocation: SunLocation,
+state playing : day: Int,
+state playing : playerBoards: List[PlayerBoard],
+state playing : forestBlocks: List[Block],
+state playing : tokenStock: TokenStock
+
+state gameOver : playerBoards: List[PlayerBoard]
+state gameOver : forestBlocks: List[Block]
+
+state registration as "Registration"
+state settingUp as "Setting Up"
+state playing as "Playing"
+state gameOver as "Game Over"
+
+[*] -> registration
+
+registration -> registration: addPlayer(player)
+registration --> settingUp: startGame
+
+settingUp -> settingUp: placeTree
+settingUp --> playing: startPlaying [everyPlayerPlaced2Trees]
+
+playing -> playing: passNextPlayer \n playerSeedPlant \n playerGrowPlant \n buyItem
+
+playing --> gameOver: doneFinalRound
+
+
+@enduml

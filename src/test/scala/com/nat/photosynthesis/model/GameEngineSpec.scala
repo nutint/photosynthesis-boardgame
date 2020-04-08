@@ -67,7 +67,7 @@ class GameEngineSpec extends FreeSpec with Matchers
       "should be able to start the game when there is 2 player" in {
         johnWithRoseGameEngine.startGame shouldBe Right(
           SettingUp(
-            plantingTreePlayer = 0,
+            activePlayerPosition = 0,
             playerBoards = johnWithRoseGameEngine.players.map(_.initBoard),
             forestBlocks = Nil,
             tokenStock = TokenStock(Nil, Nil, Nil, Nil)
@@ -80,7 +80,7 @@ class GameEngineSpec extends FreeSpec with Matchers
         johnWithRoseGameEngine
           .setTokenStock(tokenStock).startGame shouldBe Right(
           SettingUp(
-            plantingTreePlayer = 0,
+            activePlayerPosition = 0,
             playerBoards = johnWithRoseGameEngine.players.map(_.initBoard),
             forestBlocks = Nil,
             tokenStock = tokenStock
@@ -93,7 +93,7 @@ class GameEngineSpec extends FreeSpec with Matchers
   "GameEnginePlacingFirst2TreesState" - {
 
     val nonPlayerPlaceTreeYet = SettingUp(
-      plantingTreePlayer = 0,
+      activePlayerPosition = 0,
       playerBoards = johnAndRose.map(_.initBoard),
       forestBlocks = Nil,
       tokenStock = TokenStock()
@@ -111,7 +111,7 @@ class GameEngineSpec extends FreeSpec with Matchers
 
       def verifySuccessAttributes(currentPlayerPos: Int, actionPlayer: Int, assertFn: SettingUp => Assertion): Assertion = {
         nonPlayerPlaceTreeYet
-          .copy(plantingTreePlayer = currentPlayerPos)
+          .copy(activePlayerPosition = currentPlayerPos)
           .placeTree(actionPlayer, boardLocation) match {
           case Right(ns) => ns match {
             case gs: SettingUp => assertFn(gs)
@@ -128,11 +128,11 @@ class GameEngineSpec extends FreeSpec with Matchers
         }
 
         "should move to next player" in {
-          verifySuccessAttributes(0, 0, _.plantingTreePlayer shouldBe 1)
+          verifySuccessAttributes(0, 0, _.activePlayerPosition shouldBe 1)
         }
 
         "should move to first player if the current player is the last one" in {
-          verifySuccessAttributes(1, 1, _.plantingTreePlayer shouldBe 0)
+          verifySuccessAttributes(1, 1, _.activePlayerPosition shouldBe 0)
         }
 
       }
@@ -140,7 +140,7 @@ class GameEngineSpec extends FreeSpec with Matchers
       "should not allow non-active player to plant the tree" in {
         nonPlayerPlaceTreeYet
           .placeTree(1, boardLocation) match {
-          case Left(msg) => msg shouldBe s"Not player 1 turn yet, currently player ${nonPlayerPlaceTreeYet.plantingTreePlayer}"
+          case Left(msg) => msg shouldBe s"Not player 1 turn yet, currently player ${nonPlayerPlaceTreeYet.activePlayerPosition}"
           case _ => assert(false)
         }
       }
@@ -197,7 +197,7 @@ class GameEngineSpec extends FreeSpec with Matchers
         placedTreeGameState
           .flatMap(_.startPlaying) shouldBe Right(
             Playing(
-              actionPlayer = 0,
+              activePlayerPosition = 0,
               startingPlayer = 0,
               sunLocation = SunLocation0,
               day = 0,
@@ -222,7 +222,7 @@ class GameEngineSpec extends FreeSpec with Matchers
 
   "GameEnginePlaying" - {
     val initialState = Playing(
-      actionPlayer = 0,
+      activePlayerPosition = 0,
       startingPlayer = 0,
       sunLocation = SunLocation0,
       day = 0,
@@ -233,19 +233,19 @@ class GameEngineSpec extends FreeSpec with Matchers
 
     "passNextPlayer" - {
       "should remain player token at the same player and make next player actionable" in {
-        initialState.passNextPlayer shouldBe initialState.copy(actionPlayer = 1)
+        initialState.passNextPlayer shouldBe initialState.copy(activePlayerPosition = 1)
       }
       "should set next and starting player to the same, and move sun location if the last player of the round is end turn" in {
-        initialState.copy(actionPlayer = 2, startingPlayer = 0).passNextPlayer shouldBe initialState.copy(actionPlayer = 1, startingPlayer = 1, sunLocation = SunLocation1)
-        initialState.copy(actionPlayer = 1, startingPlayer = 2).passNextPlayer shouldBe initialState.copy(actionPlayer = 0, startingPlayer = 0, sunLocation = SunLocation1)
+        initialState.copy(activePlayerPosition = 2, startingPlayer = 0).passNextPlayer shouldBe initialState.copy(activePlayerPosition = 1, startingPlayer = 1, sunLocation = SunLocation1)
+        initialState.copy(activePlayerPosition = 1, startingPlayer = 2).passNextPlayer shouldBe initialState.copy(activePlayerPosition = 0, startingPlayer = 0, sunLocation = SunLocation1)
       }
       "should move player token, move sun, increase day, and set next player as first player of next round" in {
-        initialState.copy(actionPlayer = 1, startingPlayer = 2, sunLocation = SunLocation5).passNextPlayer shouldBe
-          initialState.copy(actionPlayer = 0, startingPlayer = 0, sunLocation = SunLocation0, day = 1)
+        initialState.copy(activePlayerPosition = 1, startingPlayer = 2, sunLocation = SunLocation5).passNextPlayer shouldBe
+          initialState.copy(activePlayerPosition = 0, startingPlayer = 0, sunLocation = SunLocation0, day = 1)
       }
       "should end the game if the sun come back to the starting point and there is the last round token remove from the board" in {
         val Playing(_, _, _, _, playerBoard, forestBlock, _) = initialState
-        initialState.copy(actionPlayer = 1, startingPlayer = 2, sunLocation = SunLocation5, day = 3).passNextPlayer shouldBe
+        initialState.copy(activePlayerPosition = 1, startingPlayer = 2, sunLocation = SunLocation5, day = 3).passNextPlayer shouldBe
           GameOver(playerBoard, forestBlock)
       }
     }
