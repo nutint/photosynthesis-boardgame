@@ -203,3 +203,7 @@ case class GameOver(
   playerBoards: List[PlayerBoard],
   forestBlocks: List[Block]
 ) extends GameEngine
+
+object GameEngine {
+  def apply(): GameEngine = Registration(Nil, TokenStock(Nil, Nil, Nil, Nil))
+}
