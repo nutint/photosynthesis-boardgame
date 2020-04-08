@@ -9,7 +9,7 @@ case class Registration(
   def addPlayer(player: Player): Either[String, Registration] =
     if(players.exists(_.plantType == player.plantType)) {
       Left("Unable to add player with same plant type")
-    } else if (players.exists(_.name.toLowerCase == player.name.toLowerCase)) {
+    } else if (players.exists(_.name.compareToIgnoreCase(player.name) == 0)) {
       Left("Unable to add player with the same name")
     } else {
       Right(copy(players = players :+ player))
@@ -18,12 +18,12 @@ case class Registration(
   def setTokenStock(tokenStock: TokenStock): Registration = copy(tokenStock = tokenStock)
 
   def startGame: Either[String, SettingUp] = {
-    if(players.length <= 1) {
+    if(players.length < 2) {
       Left("Cannot start game less than 2 players")
     } else {
       Right(
         SettingUp(
-          plantingTreePlayer = 0,
+          activePlayerPosition = 0,
           playerBoards = players.map(_.initBoard),
           forestBlocks = Nil,
           tokenStock = tokenStock
@@ -33,19 +33,19 @@ case class Registration(
 }
 
 case class SettingUp(
-  plantingTreePlayer: Int,
+  activePlayerPosition: Int,
   playerBoards: List[PlayerBoard],
   forestBlocks: List[Block],
   tokenStock: TokenStock
 ) extends GameEngine {
   def placeTree(playerNo: Int, boardLocation: Location): Either[String, SettingUp] = {
-    if(playerNo == plantingTreePlayer) {
+    if(playerNo == activePlayerPosition) {
       if(boardLocation.isEdgeLocation)
         if(forestBlocks.exists(_.location == boardLocation))
           Left("Unable to place to non empty location")
         else {
           Right(copy(
-            plantingTreePlayer = (playerNo + 1) % playerBoards.length,
+            activePlayerPosition = (playerNo + 1) % playerBoards.length,
             forestBlocks = forestBlocks :+ boardLocation.toForestBlock(
               SmallTree(activePlayer.plantType)
             )
@@ -56,11 +56,11 @@ case class SettingUp(
         Left(s"Cannot place on location ($x, $y, $z) since it is not edge location")
       }
     } else {
-      Left(s"Not player $playerNo turn yet, currently player $plantingTreePlayer")
+      Left(s"Not player $playerNo turn yet, currently player $activePlayerPosition")
     }
   }
 
-  def activePlayer: Player = playerBoards(plantingTreePlayer).player
+  def activePlayer: Player = playerBoards(activePlayerPosition).player
 
   def startPlaying: Either[String, Playing] = {
     if(forestBlocks.length >= playerBoards.length * 2) {
@@ -79,7 +79,7 @@ case class SettingUp(
             board.copy(sun = playerBoardScore)
           }
         Right(Playing(
-          actionPlayer = 0,
+          activePlayerPosition = 0,
           startingPlayer = 0,
           sunLocation = SunLocation0,
           day = 0,
@@ -98,7 +98,7 @@ case class SettingUp(
 }
 
 case class Playing(
-  actionPlayer: Int,
+  activePlayerPosition: Int,
   startingPlayer: Int,
   sunLocation: SunLocation,
   day: Int,
@@ -108,7 +108,7 @@ case class Playing(
 ) extends GameEngine {
   def lastDay = 4
   def passNextPlayer: GameEngine = {
-    val nextPlayer = (actionPlayer + 1) % playerBoards.length
+    val nextPlayer = (activePlayerPosition + 1) % playerBoards.length
     val nextStartingPlayer = (startingPlayer + 1) % playerBoards.length
     val endRound = nextPlayer == startingPlayer
     val endDay = sunLocation.next == SunLocation0
@@ -120,7 +120,7 @@ case class Playing(
     if(endGame && endDay) GameOver(playerBoards, forestBlocks)
     else
       copy(
-        actionPlayer = calculatedNextPlayer,
+        activePlayerPosition = calculatedNextPlayer,
         startingPlayer = calculatedStartingPlayer,
         sunLocation = calculatedSunLocation,
         day = calculatedDay
@@ -189,9 +189,11 @@ case class Playing(
     else {
       playerBoards.find(_.player == player)
         .map { playerBoard =>
-          playerBoard.buy(plantItem)
+          playerBoard
+            .buy(plantItem)
             .map(newBoard => copy(
-              playerBoards = playerBoards.map(pb => if(pb ==playerBoard) newBoard else pb)))
+              playerBoards = playerBoards.map(toBeUpdatedPlayerBoard => if(toBeUpdatedPlayerBoard == playerBoard) newBoard else toBeUpdatedPlayerBoard))
+            )
         }
         .getOrElse(Left("Player not found"))
     }
