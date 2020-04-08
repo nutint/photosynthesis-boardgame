@@ -1,7 +1,0 @@
-package com.nat.photosynthesis.model
-
-sealed trait BoardLocationTier
-case object BoardLocationTier1 extends BoardLocationTier
-case object BoardLocationTier2 extends BoardLocationTier
-case object BoardLocationTier3 extends BoardLocationTier
-case object BoardLocationTier4 extends BoardLocationTier

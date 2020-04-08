@@ -2,7 +2,7 @@ package com.nat.photosynthesis.model
 
 import org.scalatest.{FreeSpec, Matchers}
 
-class PlantItemSpec extends FreeSpec with Matchers {
+class PlantSpec extends FreeSpec with Matchers {
 
   "Seed" - {
     "should have score as 0" in {
@@ -47,37 +47,37 @@ class PlantItemSpec extends FreeSpec with Matchers {
 
   "grow" - {
     "should be cooled down after grow" in {
-      Seed(Green).grow shouldBe CooledDownSmallTree(Green)
+      Seed(Green).grow shouldBe CoolingDownSmallTree(Green)
       Seed(Green).growCost shouldBe 1
-      SmallTree(Green).grow shouldBe CooledDownMediumTree(Green)
+      SmallTree(Green).grow shouldBe CoolingDownMediumTree(Green)
       SmallTree(Green).growCost shouldBe 2
-      MediumTree(Green).grow shouldBe CooledDownLargeTree(Green)
+      MediumTree(Green).grow shouldBe CoolingDownLargeTree(Green)
       MediumTree(Green).growCost shouldBe 3
     }
   }
 
   "seed" - {
     "should be cooled down after seed" in {
-      import PlantItem._
-      SmallTree(Green).seed shouldBe CooledDownSmallTree(Green)
+      import Plant._
+      SmallTree(Green).seed shouldBe CoolingDownSmallTree(Green)
       SmallTree(Green).seedCost shouldBe Resource(Seed(Green),1)
-      MediumTree(Green).seed shouldBe CooledDownMediumTree(Green)
+      MediumTree(Green).seed shouldBe CoolingDownMediumTree(Green)
       MediumTree(Green).seedCost shouldBe Resource(Seed(Green),1)
-      LargeTree(Green).seed shouldBe CooledDownLargeTree(Green)
+      LargeTree(Green).seed shouldBe CoolingDownLargeTree(Green)
       LargeTree(Green).seedCost shouldBe Resource(Seed(Green),1)
     }
   }
 
   "reset" - {
     "should be reset to normal" in {
-      CooledDownSmallTree(Green).reset shouldBe SmallTree(Green)
-      CooledDownMediumTree(Green).reset shouldBe MediumTree(Green)
-      CooledDownLargeTree(Green).reset shouldBe LargeTree(Green)
+      CoolingDownSmallTree(Green).reset shouldBe SmallTree(Green)
+      CoolingDownMediumTree(Green).reset shouldBe MediumTree(Green)
+      CoolingDownLargeTree(Green).reset shouldBe LargeTree(Green)
     }
   }
 
   "growResource" - {
-    import PlantItem.Resource
+    import Plant.Resource
     "should returns correct upgrade resource" in {
       Seed(Green).growResource shouldBe Resource(SmallTree(Green), 1)
       SmallTree(Green).growResource shouldBe Resource(MediumTree(Green), 2)

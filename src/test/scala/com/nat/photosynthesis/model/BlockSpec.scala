@@ -3,11 +3,11 @@ package com.nat.photosynthesis.model
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import org.scalatest.{FreeSpec, Matchers}
 
-class ForestBlockSpec extends FreeSpec with Matchers {
+class BlockSpec extends FreeSpec with Matchers {
 
   "calculateScore" - {
-    val green1 = ForestBlock(BoardLocation(0, 3, 3), SmallTree(Green))
-    val green2 = ForestBlock(BoardLocation(-1, 2, 3), SmallTree(Green))
+    val green1 = Block(Location(0, 3, 3), SmallTree(Green))
+    val green2 = Block(Location(-1, 2, 3), SmallTree(Green))
 
     "should return 1 when there is only 1 tree on the list" in {
       green1.calculateScore(SunLocation0, green1 :: Nil) shouldBe 1
@@ -21,10 +21,10 @@ class ForestBlockSpec extends FreeSpec with Matchers {
   }
 
   "isUnderShadowOf" - {
-    val green1 = ForestBlock(BoardLocation(0, 3, 3), SmallTree(Green))
-    val green2 = ForestBlock(BoardLocation(-1, 2, 3), SmallTree(Green))
-    val green3 = ForestBlock(BoardLocation(0, 3, 3), SmallTree(Green))
-    val green4 = ForestBlock(BoardLocation(0, 2, 2), MediumTree(Green))
+    val green1 = Block(Location(0, 3, 3), SmallTree(Green))
+    val green2 = Block(Location(-1, 2, 3), SmallTree(Green))
+    val green3 = Block(Location(0, 3, 3), SmallTree(Green))
+    val green4 = Block(Location(0, 2, 2), MediumTree(Green))
 
     "should be false is not in the same line" in {
       green1.isUnderShadowOf(green2, SunLocation0) shouldBe Right(false)
@@ -42,12 +42,12 @@ class ForestBlockSpec extends FreeSpec with Matchers {
       val examples =
         Table(
           ("firstPlant",                           "secondPlant",                         "expectedResult"),
-          (ForestBlock(0, 1, 1, SmallTree(Green)), ForestBlock(0, 3, 3, SmallTree(Green)), Right(false)),
-          (ForestBlock(0, 2, 2, SmallTree(Green)), ForestBlock(0, 3, 3, SmallTree(Green)), Right(true)),
-          (ForestBlock(0, 2, 2, SmallTree(Green)), ForestBlock(0, 4, 4, SmallTree(Green)), Right(false)),
-          (ForestBlock(0, 2, 2, MediumTree(Green)), ForestBlock(0, 4, 4, SmallTree(Green)), Right(false)),
-          (ForestBlock(0, 0, 0, SmallTree(Green)), ForestBlock(0, 3, 3, LargeTree(Green)), Right(true)),
-          (ForestBlock(0, -1, -1, SmallTree(Green)), ForestBlock(0, 3, 3, LargeTree(Green)), Right(false))
+          (Block(0, 1, 1, SmallTree(Green)), Block(0, 3, 3, SmallTree(Green)), Right(false)),
+          (Block(0, 2, 2, SmallTree(Green)), Block(0, 3, 3, SmallTree(Green)), Right(true)),
+          (Block(0, 2, 2, SmallTree(Green)), Block(0, 4, 4, SmallTree(Green)), Right(false)),
+          (Block(0, 2, 2, MediumTree(Green)), Block(0, 4, 4, SmallTree(Green)), Right(false)),
+          (Block(0, 0, 0, SmallTree(Green)), Block(0, 3, 3, LargeTree(Green)), Right(true)),
+          (Block(0, -1, -1, SmallTree(Green)), Block(0, 3, 3, LargeTree(Green)), Right(false))
         )
       forAll(examples) { (firstPlant, secondPlant, expectedResult) =>
         firstPlant.isUnderShadowOf(secondPlant, SunLocation0) shouldBe expectedResult
@@ -57,10 +57,10 @@ class ForestBlockSpec extends FreeSpec with Matchers {
 
   "isOwnBy" - {
     "should be true if it the same plant type with players'" in {
-      ForestBlock(0, 1, 1, SmallTree(Green)).isOwnedBy(Player("John", Green)) shouldBe true
+      Block(0, 1, 1, SmallTree(Green)).isOwnedBy(Player("John", Green)) shouldBe true
     }
     "should be false if not the same plant type with players'" in {
-      ForestBlock(0, 1, 1, SmallTree(Green)).isOwnedBy(Player("John", Blue)) shouldBe false
+      Block(0, 1, 1, SmallTree(Green)).isOwnedBy(Player("John", Blue)) shouldBe false
     }
   }
 }

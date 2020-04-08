@@ -6,13 +6,13 @@ case class Player(
 ) {
   def initBoard: PlayerBoard = PlayerBoard(
     player = copy(),
-    Nil,
-    0,
-    List(
+    tokens = Nil,
+    sun = 0,
+    stock = List(
       List(Seed(plantType), Seed(plantType)),
       List(SmallTree(plantType), SmallTree(plantType)),
       List(MediumTree(plantType))
     ).flatten,
-    PlantStore(plantType = plantType)
+    store = PlantStore(plantType = plantType)
   )
 }

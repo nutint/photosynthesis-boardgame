@@ -13,22 +13,22 @@ class ScoreEngineSpec extends FreeSpec with Matchers {
     }
 
     "should return 0 if there is 1 seed in the board and its the same color" in {
-      val forestBlock = List(ForestBlock(BoardLocation(0, 3, 3), Seed(Green)))
+      val forestBlock = List(Block(Location(0, 3, 3), Seed(Green)))
       ScoreEngine.calculatePlayerScore(john, forestBlock, SunLocation0) shouldBe 0
     }
 
     "should return 1 if there is 1 small tree in the board and its the same color" in {
-      val forestBlock = List(ForestBlock(BoardLocation(0, 3, 3), SmallTree(Green)))
+      val forestBlock = List(Block(Location(0, 3, 3), SmallTree(Green)))
       ScoreEngine.calculatePlayerScore(john, forestBlock, SunLocation0) shouldBe 1
     }
 
     "should return 2 if there is 1 medium tree in the board and its the same color" in {
-      val forestBlock = List(ForestBlock(BoardLocation(0, 3, 3), MediumTree(Green)))
+      val forestBlock = List(Block(Location(0, 3, 3), MediumTree(Green)))
       ScoreEngine.calculatePlayerScore(john, forestBlock, SunLocation0) shouldBe 2
     }
 
     "should return 3 if there is 1 large tree in the board and its the same color" in {
-      val forestBlock = List(ForestBlock(BoardLocation(0, 3, 3), LargeTree(Green)))
+      val forestBlock = List(Block(Location(0, 3, 3), LargeTree(Green)))
       ScoreEngine.calculatePlayerScore(john, forestBlock, SunLocation0) shouldBe 3
     }
   }

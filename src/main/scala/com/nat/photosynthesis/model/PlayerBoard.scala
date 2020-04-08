@@ -1,12 +1,12 @@
 package com.nat.photosynthesis.model
 
-import com.nat.photosynthesis.model.PlantItem.Resource
+import com.nat.photosynthesis.model.Plant.Resource
 
 case class PlayerBoard(
   player: Player,
-  tokens: List[Token],
+  tokens: List[ScoringToken],
   sun: Int,
-  stock: List[PlantItem],
+  stock: List[Plant],
   store: PlantStore
 ) {
   def withdrawResource(resource: Resource): Either[String, PlayerBoard] = {
@@ -21,10 +21,10 @@ case class PlayerBoard(
     }
   }
 
-  def putBack(plantItem: PlantItem): Either[String, PlayerBoard] =
+  def putBack(plantItem: Plant): Either[String, PlayerBoard] =
     store.putBack(plantItem).map(s => copy(store = s))
 
-  def buy(plantItem: PlantItem): Either[String, PlayerBoard] =
+  def buy(plantItem: Plant): Either[String, PlayerBoard] =
     store
       .getPrice(plantItem)
       .flatMap(price => if(price > sun) Left("Not enough sun") else Right(sun - price))
