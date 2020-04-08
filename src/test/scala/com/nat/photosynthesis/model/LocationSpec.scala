@@ -3,22 +3,22 @@ package com.nat.photosynthesis.model
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import org.scalatest.{FreeSpec, Matchers}
 
-class BoardLocationSpec extends FreeSpec with Matchers {
+class LocationSpec extends FreeSpec with Matchers {
 
   "withTree" - {
     "should work correctly" in {
-      val location = BoardLocation(0, 0, 0)
-      location.toForestBlock(SmallTree(Green)) shouldBe ForestBlock(location, SmallTree(Green))
+      val location = Location(0, 0, 0)
+      location.toForestBlock(SmallTree(Green)) shouldBe Block(location, SmallTree(Green))
     }
   }
 
   "isEdgeLocation" - {
     "should returns true when this is the edge location" in {
-      val location = BoardLocation(3, 3, 0)
+      val location = Location(3, 3, 0)
       location.isEdgeLocation shouldBe true
     }
     "should returns false if this is not the edge location" in {
-      val location = BoardLocation(0, 0, 0)
+      val location = Location(0, 0, 0)
       location.isEdgeLocation shouldBe false
     }
   }
@@ -29,16 +29,16 @@ class BoardLocationSpec extends FreeSpec with Matchers {
       val examples =
         Table(
           "BoardLocation",
-          BoardLocation(0, 3, 3),
-          BoardLocation(-1, 2, 3),
-          BoardLocation(-2, 1, 3),
-          BoardLocation(-3, 0, 3),
-          BoardLocation(-3, -1, 2),
-          BoardLocation(-3, -2, 1),
-          BoardLocation(-3, -3, 0)
+          Location(0, 3, 3),
+          Location(-1, 2, 3),
+          Location(-2, 1, 3),
+          Location(-3, 0, 3),
+          Location(-3, -1, 2),
+          Location(-3, -2, 1),
+          Location(-3, -3, 0)
         )
       forAll(examples) { boardLocation =>
-        boardLocation.getBoardLocationTier shouldBe BoardLocationTier1
+        boardLocation.getBoardLocationTier shouldBe LocationTier1$
       }
     }
 
@@ -47,12 +47,12 @@ class BoardLocationSpec extends FreeSpec with Matchers {
       val examples =
         Table(
           "BoardLocation",
-          BoardLocation(0, 2, 2),
-          BoardLocation(-1, 1, 2),
-          BoardLocation(-2, 0, 2)
+          Location(0, 2, 2),
+          Location(-1, 1, 2),
+          Location(-2, 0, 2)
         )
       forAll(examples) { boardLocation =>
-        boardLocation.getBoardLocationTier shouldBe BoardLocationTier2
+        boardLocation.getBoardLocationTier shouldBe LocationTier2$
       }
     }
 
@@ -61,26 +61,26 @@ class BoardLocationSpec extends FreeSpec with Matchers {
       val examples =
         Table(
           "BoardLocation",
-          BoardLocation(0, 1, 1),
-          BoardLocation(-1, 0, 1),
-          BoardLocation(-1, -1, 0)
+          Location(0, 1, 1),
+          Location(-1, 0, 1),
+          Location(-1, -1, 0)
         )
       forAll(examples) { boardLocation =>
-        boardLocation.getBoardLocationTier shouldBe BoardLocationTier3
+        boardLocation.getBoardLocationTier shouldBe LocationTier3$
       }
     }
 
     "should returns BoardLocationTier4 when pass the following inputs" in {
-      BoardLocation(0, 0, 0).getBoardLocationTier shouldBe BoardLocationTier4
+      Location(0, 0, 0).getBoardLocationTier shouldBe LocationTier4$
     }
 
   }
 
   "Position Check" - {
 
-    val location1 = BoardLocation(0, 0, 0)
-    val location2 = BoardLocation(0, 1, 1)
-    val location3 = BoardLocation(-1, 2, 3)
+    val location1 = Location(0, 0, 0)
+    val location2 = Location(0, 1, 1)
+    val location3 = Location(-1, 2, 3)
 
     "isBehind" - {
 
@@ -142,18 +142,18 @@ class BoardLocationSpec extends FreeSpec with Matchers {
         )
 
       forAll(examples) { (firstLocation, secondLocation, sunLocation, expectedResult) =>
-        BoardLocation(firstLocation)
-          .getDistance(BoardLocation(secondLocation), sunLocation) shouldBe expectedResult
+        Location(firstLocation)
+          .getDistance(Location(secondLocation), sunLocation) shouldBe expectedResult
       }
     }
   }
 
   "inRadius" - {
     "should work by the following examples" in {
-      BoardLocation(0, 0, 0).inRadius(BoardLocation(0, 1, 1), 1) shouldBe true
-      BoardLocation(0, 0, 0).inRadius(BoardLocation(0, 1, 1), 0) shouldBe false
-      BoardLocation(0, 0, 0).inRadius(BoardLocation(-3, 0, 3), 0) shouldBe false
-      BoardLocation(0, 0, 0).inRadius(BoardLocation(-3, 0, 3), 3) shouldBe true
+      Location(0, 0, 0).inRadius(Location(0, 1, 1), 1) shouldBe true
+      Location(0, 0, 0).inRadius(Location(0, 1, 1), 0) shouldBe false
+      Location(0, 0, 0).inRadius(Location(-3, 0, 3), 0) shouldBe false
+      Location(0, 0, 0).inRadius(Location(-3, 0, 3), 3) shouldBe true
     }
   }
 }

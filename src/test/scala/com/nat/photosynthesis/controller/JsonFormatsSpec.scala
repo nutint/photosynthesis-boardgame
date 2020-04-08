@@ -53,17 +53,17 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
 
       "should return object when decode success" in {
         val sourceString = """{ "x": 1, "y": 2, "z": 3 }""".parseJson
-        boardLocationFormat.read(sourceString) shouldBe BoardLocation(1, 2, 3)
+        boardLocationFormat.read(sourceString) shouldBe Location(1, 2, 3)
       }
       "should throw error when decode fail" in {
         val sourceString = """{ "y": 2, "z": 3 }""".parseJson
-        verifyReadError[BoardLocation](sourceString, "Object is missing required member 'x'")
+        verifyReadError[Location](sourceString, "Object is missing required member 'x'")
       }
     }
 
     "write" - {
       "should write decodable json" in {
-        val expectedBoardLocation = BoardLocation(1, 2, 3)
+        val expectedBoardLocation = Location(1, 2, 3)
         boardLocationFormat.read(
           boardLocationFormat.write(expectedBoardLocation)
         ) shouldBe expectedBoardLocation
@@ -107,12 +107,12 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
         val examples =
           Table(
             ("jsonString", "expectedTier"),
-            ("tier1", BoardLocationTier1),
-            ("tier1  ", BoardLocationTier1),
-            ("tIer1", BoardLocationTier1),
-            ("tier2", BoardLocationTier2),
-            ("tier3", BoardLocationTier3),
-            ("tier4", BoardLocationTier4)
+            ("tier1", LocationTier1$),
+            ("tier1  ", LocationTier1$),
+            ("tIer1", LocationTier1$),
+            ("tier2", LocationTier2$),
+            ("tier3", LocationTier3$),
+            ("tier4", LocationTier4$)
           )
 
         forAll(examples) { (tier, expectedTier) => {
@@ -120,17 +120,17 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
         }}
       }
       "should fail if the input json is not correct string value" in {
-        verifyReadError[BoardLocationTier](JsString("abd"), "invalid board location tier value: expected (tier1, tier2, tier3, tier4)")
+        verifyReadError[LocationTier](JsString("abd"), "invalid board location tier value: expected (tier1, tier2, tier3, tier4)")
       }
       "should fail if the input json is not string" in {
-        verifyReadError[BoardLocationTier](JsNumber(123), "invalid board location tier value: expected string")
+        verifyReadError[LocationTier](JsNumber(123), "invalid board location tier value: expected string")
       }
     }
     "write" - {
       "should write decodable json" in {
         BoardLocationTierFormat.read(
-          BoardLocationTierFormat.write(BoardLocationTier1)
-        ) shouldBe BoardLocationTier1
+          BoardLocationTierFormat.write(LocationTier1$)
+        ) shouldBe LocationTier1$
       }
     }
   }
@@ -163,7 +163,7 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
             "asdf asdf asdf"
           )
         forAll(examples) { strVal =>
-          verifyReadError[Distance](JsString(strVal), "invalid distance value: expected (same, differentline, front x, rear x)")
+          verifyReadError[Displacement](JsString(strVal), "invalid distance value: expected (same, differentline, front x, rear x)")
         }
       }
     }
@@ -193,11 +193,11 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
           Table(
             ("jsonString", "expected"),
             ("green seed", Seed(Green)),
-            ("green cooleddown-small-tree", CooledDownSmallTree(Green)),
+            ("green cooleddown-small-tree", CoolingDownSmallTree(Green)),
             ("green small-tree", SmallTree(Green)),
-            ("Green cooleddown-medium-tree", CooledDownMediumTree(Green)),
+            ("Green cooleddown-medium-tree", CoolingDownMediumTree(Green)),
             ("gReen medium-tree", MediumTree(Green)),
-            ("green cooleddown-large-tree", CooledDownLargeTree(Green)),
+            ("green cooleddown-large-tree", CoolingDownLargeTree(Green)),
             ("green large-tree", LargeTree(Green))
           )
         forAll(examples) { (jsString, expected) =>
@@ -216,9 +216,9 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
             "asdfsadf medium-tree"
           )
         forAll(examples) { failExample =>
-          verifyReadError[PlantItem](JsString(failExample), "invalid plant item value: expected example 'green seed', 'yellow medium-tree', 'blue cooleddown-medium-tree")
+          verifyReadError[Plant](JsString(failExample), "invalid plant item value: expected example 'green seed', 'yellow medium-tree', 'blue cooleddown-medium-tree")
         }
-        verifyReadError[PlantItem](JsNumber(123), "invalid plant item value: expected example 'green seed', 'yellow medium-tree', 'blue cooleddown-medium-tree")
+        verifyReadError[Plant](JsNumber(123), "invalid plant item value: expected example 'green seed', 'yellow medium-tree', 'blue cooleddown-medium-tree")
       }
     }
     "write" - {
@@ -227,11 +227,11 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
           Table(
             "example",
             Seed(Green),
-            CooledDownSmallTree(Green),
+            CoolingDownSmallTree(Green),
             SmallTree(Green),
-            CooledDownMediumTree(Green),
+            CoolingDownMediumTree(Green),
             MediumTree(Green),
-            CooledDownLargeTree(Green),
+            CoolingDownLargeTree(Green),
             LargeTree(Green)
           )
         forAll(examples) { example =>
@@ -273,10 +273,10 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
         val examples =
           Table(
             ("jsonString", "expected"),
-            ("tier1 19", TokenTierOne(19)),
-            ("tier2 20", TokenTierTwo(20)),
-            ("Tier3 30", TokenTierThree(30)),
-            ("Tier4 40", TokenTierFour(40))
+            ("tier1 19", ScoringTokenTierOne(19)),
+            ("tier2 20", ScoringTokenTierTwo(20)),
+            ("Tier3 30", ScoringTokenTierThree(30)),
+            ("Tier4 40", ScoringTokenTierFour(40))
           )
         forAll(examples) { (jsonString, expected) =>
           TokenFormat.read(JsString(jsonString)) shouldBe expected
@@ -292,9 +292,9 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
           )
 
         forAll(examples) { jsonString =>
-          verifyReadError[Token](JsString(jsonString), "invalid token value: expected example 'tier1 20', 'tier2 20', 'tier4 50'")
+          verifyReadError[ScoringToken](JsString(jsonString), "invalid token value: expected example 'tier1 20', 'tier2 20', 'tier4 50'")
         }
-        verifyReadError[Token](JsNumber(12345), "invalid token value: expected example 'tier1 20', 'tier2 20', 'tier4 50'")
+        verifyReadError[ScoringToken](JsNumber(12345), "invalid token value: expected example 'tier1 20', 'tier2 20', 'tier4 50'")
       }
     }
     "write" - {
@@ -302,10 +302,10 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
         val examples =
           Table(
             "example",
-            TokenTierOne(1),
-            TokenTierTwo(2),
-            TokenTierThree(3),
-            TokenTierFour(4)
+            ScoringTokenTierOne(1),
+            ScoringTokenTierTwo(2),
+            ScoringTokenTierThree(3),
+            ScoringTokenTierFour(4)
           )
         forAll(examples) { example =>
           TokenFormat.read(

@@ -1,19 +1,19 @@
 package com.nat.photosynthesis.model
 
-case class BoardLocation(x: Int, y: Int, z: Int) {
-  def toForestBlock(plantItem: PlantItem): ForestBlock = ForestBlock(this, plantItem)
-  def isEdgeLocation: Boolean = getBoardLocationTier == BoardLocationTier1
-  def getBoardLocationTier: BoardLocationTier = {
+case class Location(x: Int, y: Int, z: Int) {
+  def toForestBlock(plantItem: Plant): Block = Block(this, plantItem)
+  def isEdgeLocation: Boolean = getBoardLocationTier == LocationTier1$
+  def getBoardLocationTier: LocationTier = {
     List(x, y, z).foldLeft(0) { (acc, elem) => acc + (elem * elem)} match {
-      case 18 | 14 => BoardLocationTier1
-      case 8 | 6 => BoardLocationTier2
-      case 2 => BoardLocationTier3
-      case 0 => BoardLocationTier4
+      case 18 | 14 => LocationTier1$
+      case 8 | 6 => LocationTier2$
+      case 2 => LocationTier3$
+      case 0 => LocationTier4$
     }
   }
 
-  def isBehind(rsh: BoardLocation, sunLocation: SunLocation): Boolean = {
-    val BoardLocation(rhsX, rhsY, rhsZ) = rsh
+  def isBehind(rsh: Location, sunLocation: SunLocation): Boolean = {
+    val Location(rhsX, rhsY, rhsZ) = rsh
     (sunLocation match {
       case SunLocation0 => rhsY > y
       case SunLocation3 => rhsY < y
@@ -24,8 +24,8 @@ case class BoardLocation(x: Int, y: Int, z: Int) {
     }) && isSameLine(rsh, sunLocation)
   }
 
-  def isSameLine(rhs: BoardLocation, sunLocation: SunLocation): Boolean = {
-    val BoardLocation(rhsX, rhsY, rhsZ) = rhs
+  def isSameLine(rhs: Location, sunLocation: SunLocation): Boolean = {
+    val Location(rhsX, rhsY, rhsZ) = rhs
     sunLocation match {
       case SunLocation0 | SunLocation3 => rhsX == x
       case SunLocation1 | SunLocation4 => rhsY == y
@@ -33,7 +33,7 @@ case class BoardLocation(x: Int, y: Int, z: Int) {
     }
   }
 
-  def inRadius(rhs: BoardLocation, range: Int): Boolean =
+  def inRadius(rhs: Location, range: Int): Boolean =
     List(SunLocation0, SunLocation1, SunLocation2)
       .exists(sl => getDistance(rhs, sl) match {
         case Front(r) if r <= range => true
@@ -41,11 +41,11 @@ case class BoardLocation(x: Int, y: Int, z: Int) {
         case _ => false
       })
 
-  def getDistance(boardLocation: BoardLocation, sunLocation: SunLocation): Distance = {
+  def getDistance(boardLocation: Location, sunLocation: SunLocation): Displacement = {
     if(boardLocation == this) Same
     else if(!isSameLine(boardLocation, sunLocation)) DifferentLine
     else {
-      val BoardLocation(rhsX, rhsY, rhsZ) = boardLocation
+      val Location(rhsX, rhsY, rhsZ) = boardLocation
       sunLocation match {
         case SunLocation0 => toDistance(y - rhsY)
         case SunLocation3 => toDistance(rhsY - y)
@@ -57,7 +57,7 @@ case class BoardLocation(x: Int, y: Int, z: Int) {
     }
   }
 
-  private def toDistance(distance: Int): SameLineDistance =
+  private def toDistance(distance: Int): SameLineDisplacement =
     distance match {
       case d if d > 0 => Front(d)
       case d if d < 0 => Rear(-d)
@@ -65,6 +65,6 @@ case class BoardLocation(x: Int, y: Int, z: Int) {
     }
 }
 
-object BoardLocation {
-  def apply(tup: (Int, Int, Int)): BoardLocation = BoardLocation(tup._1, tup._2, tup._3)
+object Location {
+  def apply(tup: (Int, Int, Int)): Location = Location(tup._1, tup._2, tup._3)
 }

@@ -1,6 +1,6 @@
 package com.nat.photosynthesis.model
 
-import com.nat.photosynthesis.model.PlantItem.Resource
+import com.nat.photosynthesis.model.Plant.Resource
 import org.scalatest.{FreeSpec, Matchers}
 
 class PlayerBoardSpec extends FreeSpec with Matchers {
