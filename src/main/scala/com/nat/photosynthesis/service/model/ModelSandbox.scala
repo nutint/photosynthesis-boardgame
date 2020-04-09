@@ -1,5 +1,8 @@
 package com.nat.photosynthesis.service.model
 
+import java.time.{Duration, Instant, LocalDate}
+import java.util.Date
+
 object ModelSandbox {
 
   object Example1 {
@@ -59,17 +62,28 @@ object ModelSandbox {
       case object Verified extends AccountStatus
       case object Premium extends AccountStatus
 
-      case class Account(name: String, email: String, accountStatus: AccountStatus) {
+      case class Account(name: String, email: String, accountStatus: AccountStatus, premiumExpireDate: Date) {
         def verify: Account = accountStatus match {
           case NonVerified => copy(accountStatus = Verified)
           case _ => this
         }
       }
 
+      // REQ-01
       // Usage
       val account = Account("John", "john@gmail.com", NonVerified)
       val mayBeVerifiedAccount = account.verify
 
+      // REQ-02
+      def sendRenewalNotification(allAccounts: List[Account], notificationDate: Date) = {
+        allAccounts
+          .filter(account => account.accountStatus == Premium && account.premiumExpireDate.after(notificationDate))
+          .foreach(account => println(s"send notification to account $account"))
+      }
+      // Usage
+      val notificationDate = Date.from(Instant.now().minus(Duration.ofDays(7)))
+      val accounts = List(/* */)
+      sendRenewalNotification(accounts, notificationDate)
     }
 
     object TypeExample {
@@ -78,7 +92,7 @@ object ModelSandbox {
         def verify: VerifiedAccount = VerifiedAccount(name, email)
       }
       case class VerifiedAccount(name: String, email: String) extends UserAccount
-      case class PremiumAccount(name: String, email: String) extends UserAccount
+      case class PremiumAccount(name: String, email: String, expireDate: Date) extends UserAccount
 
       // REQ-01
       // Usage
@@ -89,7 +103,18 @@ object ModelSandbox {
       val maryVerifiedAccount = VerifiedAccount("Mary", "mary@gmail.com")
       // maryVerifiedAccount.verify // compile error
 
+      // REQ-02
+      def sendRenewalNotification(premiumAccounts: List[PremiumAccount]) =
+        premiumAccounts
+          .foreach(premiumAccount => println(s"send renewal notification to ${premiumAccount.name} expireAt ${premiumAccount.expireDate}"))
 
+      def sendRenewalNotificationUnsafe(userAccounts: List[UserAccount]) =
+        userAccounts
+            .flatMap {
+              case pm: PremiumAccount => List(pm)
+              case _ => Nil
+            }
+          .foreach(premiumAccount => println(s"send renewal notification to ${premiumAccount.name} expireAt ${premiumAccount.expireDate}"))
     }
   }
 
