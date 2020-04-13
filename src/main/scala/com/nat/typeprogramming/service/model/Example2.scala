@@ -23,9 +23,15 @@ object Example2 {
   object TypeExample {
 
     sealed trait Account
-    case class NonVerifiedAccount(name: String, email: String) extends Account
+    case class NonVerifiedAccount(name: String, email: String) extends Account {
+      def verify: VerifiedAccount = VerifiedAccount(name, email)
+    }
     case class VerifiedAccount(name: String, email: String) extends Account
     case class PremiumAccount(name: String, email: String) extends Account
 
+    def verify(account: Account): Either[String, Account] = account match {
+      case n: NonVerifiedAccount => Right(n.verify)
+      case _ => Left("Already verified")
+    }
   }
 }
