@@ -16,7 +16,8 @@ object Example2 {
       name: String,
       email: String,
       accountStatus: AccountStatus,
-      premiumExpireDate: Date
+      premiumExpireDate: Date,
+      lastActivityAt: Date
     )
 
     def verify(account: Account): Either[String, Account] = account.accountStatus match {
@@ -31,6 +32,15 @@ object Example2 {
         case (Premium, true) => Right(())
         case (Premium, false) => Left(s"Unable to send to Premium account that expire more than $noOfDaysBeforeExpire days from now")
         case _ => Left("Unable to send to Non-Premium account")
+      }
+    }
+
+    def deactivateAccount(account: Account, date: Date): Either[String, Unit] = {
+      val noActivityMoreThan1Year = account.lastActivityAt.before(date)
+      (account.accountStatus, noActivityMoreThan1Year) match {
+        case (NonVerified, true) => Right(())
+        case (NonVerified, false) => Left(s"Too early to deactivate the account")
+        case _ => Left("Unable to deactivate verified account")
       }
     }
   }
