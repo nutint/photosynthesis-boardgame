@@ -5,11 +5,11 @@ import org.scalatest.{FreeSpec, Matchers}
 class Example2Spec extends FreeSpec with Matchers {
 
   /**
-   * REQ-01
+   * REQ-02
    * User Story
-   * As a NonVerified Account
-   * I want to verify account
-   * So I can use features that rely on email
+   * As a Premium member
+   * I want to keep remind to renew account 7 days before expiration
+   * So I can renew account with out any interruption
    */
 
   "AttributeExample" - {
