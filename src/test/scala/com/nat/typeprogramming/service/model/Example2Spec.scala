@@ -86,7 +86,7 @@ class Example2Spec extends FreeSpec with Matchers {
 
       "should fail with reason when try to verify premium account" in {
         verify(
-          PremiumAccount("John", "john@email.com")
+          PremiumAccount("John", "john@email.com", new Date())
         ) shouldBe Left("Already verified")
       }
 
@@ -97,5 +97,25 @@ class Example2Spec extends FreeSpec with Matchers {
       }
     }
 
+    "sendReminderEmail" - {
+
+      val inRangedPremiumExpireDate = Date.from(Instant.now().plus(Duration.ofDays(6)))
+      val notInRangedPremiumExpireDate = Date.from(Instant.now().plus(Duration.ofDays(8)))
+      val noOfDaysBeforeExpire = 7
+
+      "should fail with reason when sending to premium account but expire date is over 7 day from now" in {
+        sendReminderEmail(
+          PremiumAccount("John", "john@email.com", notInRangedPremiumExpireDate),
+          noOfDaysBeforeExpire
+        ) shouldBe Left(s"Unable to send to Premium account that expire more than $noOfDaysBeforeExpire days from now")
+      }
+
+      "should success when premium account and expire date is in 7 day" in {
+        sendReminderEmail(
+          PremiumAccount("John", "john@email.com", inRangedPremiumExpireDate),
+          noOfDaysBeforeExpire
+        ) shouldBe Right(())
+      }
+    }
   }
 }
