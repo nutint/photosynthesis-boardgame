@@ -12,11 +12,26 @@ object Example2 {
     case object Verified extends AccountStatus
     case object Premium extends AccountStatus
 
-    case class Account(name: String, email: String, accountStatus: AccountStatus)
+    case class Account(
+      name: String,
+      email: String,
+      accountStatus: AccountStatus,
+      premiumExpireDate: Date
+    )
 
     def verify(account: Account): Either[String, Account] = account.accountStatus match {
       case NonVerified => Right(account.copy(accountStatus = Verified))
       case Verified | Premium => Left("Already verified")
+    }
+
+    def sendReminderEmail(account: Account, noOfDaysBeforeExpire: Int): Either[String, Unit] = {
+      val nDaysFromNow = Date.from(Instant.now().plus(Duration.ofDays(noOfDaysBeforeExpire)))
+      val isInReminderPeriod = nDaysFromNow.after(account.premiumExpireDate)
+      (account.accountStatus, isInReminderPeriod) match {
+        case (Premium, true) => Right(())
+        case (Premium, false) => Left(s"Unable to send to Premium account that expire more than $noOfDaysBeforeExpire days from now")
+        case _ => Left("Unable to send to Non-Premium account")
+      }
     }
   }
 
