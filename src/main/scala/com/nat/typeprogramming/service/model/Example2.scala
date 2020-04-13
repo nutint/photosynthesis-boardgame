@@ -13,6 +13,11 @@ object Example2 {
     case object Premium extends AccountStatus
 
     case class Account(name: String, email: String, accountStatus: AccountStatus)
+
+    def verify(account: Account): Either[String, Account] = account.accountStatus match {
+      case NonVerified => Right(account.copy(accountStatus = Verified))
+      case Verified | Premium => Left("Already verified")
+    }
   }
 
   object TypeExample {
