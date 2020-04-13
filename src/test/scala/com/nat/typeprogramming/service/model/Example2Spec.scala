@@ -140,7 +140,7 @@ class Example2Spec extends FreeSpec with Matchers {
 
       "should become verified account when verify verified account" in {
         verify(
-          NonVerifiedAccount("John", "john@email.com")
+          NonVerifiedAccount("John", "john@email.com", new Date())
         ) shouldBe Right(VerifiedAccount("John", "john@email.com"))
       }
     }
@@ -162,6 +162,27 @@ class Example2Spec extends FreeSpec with Matchers {
         sendReminderEmail(
           PremiumAccount("John", "john@email.com", inRangedPremiumExpireDate),
           noOfDaysBeforeExpire
+        ) shouldBe Right(())
+      }
+    }
+
+    "deactivateAccount" - {
+
+      val lastActivityMoreThanOneYear = Date.from(Instant.now().minus(Duration.ofDays(399)))
+      val lastActivityLessThan1Year = Date.from(Instant.now().minus(Duration.ofDays(300)))
+      val oneYearBeforeNow = Date.from(Instant.now().minus(Duration.ofDays(365)))
+
+      "should fail if lastActive not over 1 year" in {
+        deactivateAccount(
+          NonVerifiedAccount("John", "john@example.com", lastActivityLessThan1Year),
+          oneYearBeforeNow
+        ) shouldBe Left("Too early to deactivate the account")
+      }
+
+      "should success if lastActive over 1 year" in {
+        deactivateAccount(
+          NonVerifiedAccount("John", "john@example.com", lastActivityMoreThanOneYear),
+          oneYearBeforeNow
         ) shouldBe Right(())
       }
     }

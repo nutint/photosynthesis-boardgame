@@ -48,7 +48,7 @@ object Example2 {
   object TypeExample {
 
     sealed trait Account
-    case class NonVerifiedAccount(name: String, email: String) extends Account {
+    case class NonVerifiedAccount(name: String, email: String, lastActivityAt: Date) extends Account {
       def verify: VerifiedAccount = VerifiedAccount(name, email)
     }
     case class VerifiedAccount(name: String, email: String) extends Account
@@ -65,5 +65,10 @@ object Example2 {
       if(isInReminderPeriod) Right(())
       else Left(s"Unable to send to Premium account that expire more than $noOfDaysBeforeExpire days from now")
     }
+
+    def deactivateAccount(nonVerifiedAccount: NonVerifiedAccount, date: Date): Either[String, Unit] =
+      if(nonVerifiedAccount.lastActivityAt.before(date)) Right(())
+      else Left("Too early to deactivate the account")
+
   }
 }
