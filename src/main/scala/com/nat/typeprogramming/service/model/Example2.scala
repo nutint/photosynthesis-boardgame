@@ -42,11 +42,18 @@ object Example2 {
       def verify: VerifiedAccount = VerifiedAccount(name, email)
     }
     case class VerifiedAccount(name: String, email: String) extends Account
-    case class PremiumAccount(name: String, email: String) extends Account
+    case class PremiumAccount(name: String, email: String, expireDate: Date) extends Account
 
     def verify(account: Account): Either[String, Account] = account match {
       case n: NonVerifiedAccount => Right(n.verify)
       case _ => Left("Already verified")
+    }
+
+    def sendReminderEmail(premiumAccount: PremiumAccount, noOfDaysBeforeExpire: Int): Either[String, Unit] = {
+      val nDaysFromNow = Date.from(Instant.now().plus(Duration.ofDays(noOfDaysBeforeExpire)))
+      val isInReminderPeriod = nDaysFromNow.after(premiumAccount.expireDate)
+      if(isInReminderPeriod) Right(())
+      else Left(s"Unable to send to Premium account that expire more than $noOfDaysBeforeExpire days from now")
     }
   }
 }
