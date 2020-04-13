@@ -4,6 +4,7 @@ import java.time.{Duration, Instant}
 import java.util.Date
 
 import org.scalatest.{FreeSpec, Matchers}
+import org.scalatest.prop.TableDrivenPropertyChecks._
 
 class Example2Spec extends FreeSpec with Matchers {
 
@@ -22,51 +23,98 @@ class Example2Spec extends FreeSpec with Matchers {
     "verify" - {
 
       val expireDate = new Date()
+      val lastActiveAt = new Date()
+
       "should fail with reason when try to verify verified account" in {
         verify(
-          Account("John", "john@email.com", Verified, expireDate)
+          Account("John", "john@email.com", Verified, expireDate, lastActiveAt)
         ) shouldBe Left("Already verified")
       }
 
       "should fail with reason when try to verify premium account" in {
         verify(
-          Account("John", "john@email.com", Premium, expireDate)
+          Account("John", "john@email.com", Premium, expireDate, lastActiveAt)
         ) shouldBe Left("Already verified")
       }
 
       "should become verified account when verify verified account" in {
         verify(
-          Account("John", "john@email.com", NonVerified, expireDate)
-        ) shouldBe Right(Account("John", "john@email.com", Verified, expireDate))
+          Account("John", "john@email.com", NonVerified, expireDate, lastActiveAt)
+        ) shouldBe Right(Account("John", "john@email.com", Verified, expireDate, lastActiveAt))
       }
     }
 
     "sendReminderEmail" - {
 
+      val lastActiveAt = new Date()
       val inRangedPremiumExpireDate = Date.from(Instant.now().plus(Duration.ofDays(6)))
       val notInRangedPremiumExpireDate = Date.from(Instant.now().plus(Duration.ofDays(8)))
       val noOfDaysBeforeExpire = 7
+
       "should fail with reason when sending to non-verified account" in {
         sendReminderEmail(
-          Account("John", "john@email.com", NonVerified, inRangedPremiumExpireDate), noOfDaysBeforeExpire
+          Account("John", "john@email.com", NonVerified, inRangedPremiumExpireDate, lastActiveAt),
+          noOfDaysBeforeExpire
         ) shouldBe Left("Unable to send to Non-Premium account")
       }
 
       "should fail with reason when sending to verified account" in {
         sendReminderEmail(
-          Account("John", "john@email.com", Verified, inRangedPremiumExpireDate), noOfDaysBeforeExpire
+          Account("John", "john@email.com", Verified, inRangedPremiumExpireDate, lastActiveAt),
+          noOfDaysBeforeExpire
         ) shouldBe Left("Unable to send to Non-Premium account")
       }
 
       "should fail with reason when sending to premium account but expire date is over 7 day from now" in {
         sendReminderEmail(
-          Account("John", "john@email.com", Premium, notInRangedPremiumExpireDate), noOfDaysBeforeExpire
+          Account("John", "john@email.com", Premium, notInRangedPremiumExpireDate, lastActiveAt),
+          noOfDaysBeforeExpire
         ) shouldBe Left(s"Unable to send to Premium account that expire more than $noOfDaysBeforeExpire days from now")
       }
 
       "should success when premium account and expire date is in 7 day" in {
         sendReminderEmail(
-          Account("John", "john@email.com", Premium, inRangedPremiumExpireDate), noOfDaysBeforeExpire
+          Account("John", "john@email.com", Premium, inRangedPremiumExpireDate, lastActiveAt),
+          noOfDaysBeforeExpire
+        ) shouldBe Right(())
+      }
+    }
+
+    "deactivateAccount" - {
+
+      val premiumExpiredDate = new Date()
+      val lastActivityAt = new Date()
+      val lastActivityMoreThanOneYear = Date.from(Instant.now().minus(Duration.ofDays(399)))
+      val lastActivityLessThan1Year = Date.from(Instant.now().minus(Duration.ofDays(300)))
+      val oneYearBeforeNow = Date.from(Instant.now().minus(Duration.ofDays(365)))
+
+      "should fail if the account is verified account" in {
+
+        val examples =
+          Table(
+            "accountStatus",
+            Verified,
+            Premium
+          )
+        forAll(examples) { accountStatus =>
+          deactivateAccount(
+            Account("John", "john@example.com", accountStatus, premiumExpiredDate, lastActivityAt),
+            oneYearBeforeNow
+          ) shouldBe Left("Unable to deactivate verified account")
+        }
+      }
+
+      "should fail if the account is non-verified but lastActive not over 1 year" in {
+        deactivateAccount(
+          Account("John", "john@example.com", NonVerified, premiumExpiredDate, lastActivityLessThan1Year),
+          oneYearBeforeNow
+        ) shouldBe Left("Too early to deactivate the account")
+      }
+
+      "should success if the account is non-verified and lastActive was over 1 year" in {
+        deactivateAccount(
+          Account("John", "john@example.com", NonVerified, premiumExpiredDate, lastActivityMoreThanOneYear),
+          oneYearBeforeNow
         ) shouldBe Right(())
       }
     }
