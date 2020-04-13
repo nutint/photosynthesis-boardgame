@@ -1,6 +1,6 @@
 package com.nat.photosynthesis.service
 
-import com.nat.photosynthesis.model.GameEngine
+import com.nat.photosynthesis.service.model.engine.GameEngine
 
 import scala.concurrent.Future
 

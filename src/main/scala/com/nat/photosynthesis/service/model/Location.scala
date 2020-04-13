@@ -1,4 +1,4 @@
-package com.nat.photosynthesis.model
+package com.nat.photosynthesis.service.model
 
 case class Location(x: Int, y: Int, z: Int) {
   def toForestBlock(plantItem: Plant): Block = Block(this, plantItem)

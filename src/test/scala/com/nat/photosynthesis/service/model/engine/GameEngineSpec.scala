@@ -1,5 +1,6 @@
-package com.nat.photosynthesis.model
+package com.nat.photosynthesis.service.model.engine
 
+import com.nat.photosynthesis.service.model._
 import org.scalatest.{Assertion, FreeSpec, Matchers}
 
 class GameEngineSpec extends FreeSpec with Matchers
@@ -79,7 +80,7 @@ class GameEngineSpec extends FreeSpec with Matchers
         val tokenStock = TokenStock(Nil, Nil, Nil, List(ScoringTokenTierFour(12)))
         johnWithRoseGameEngine
           .setTokenStock(tokenStock).startGame shouldBe Right(
-          SettingUp(
+          engine.SettingUp(
             activePlayerPosition = 0,
             playerBoards = johnWithRoseGameEngine.players.map(_.initBoard),
             forestBlocks = Nil,
@@ -92,7 +93,7 @@ class GameEngineSpec extends FreeSpec with Matchers
 
   "GameEnginePlacingFirst2TreesState" - {
 
-    val nonPlayerPlaceTreeYet = SettingUp(
+    val nonPlayerPlaceTreeYet = engine.SettingUp(
       activePlayerPosition = 0,
       playerBoards = johnAndRose.map(_.initBoard),
       forestBlocks = Nil,
@@ -221,7 +222,7 @@ class GameEngineSpec extends FreeSpec with Matchers
   }
 
   "GameEnginePlaying" - {
-    val initialState = Playing(
+    val initialState = engine.Playing(
       activePlayerPosition = 0,
       startingPlayer = 0,
       sunLocation = SunLocation0,
