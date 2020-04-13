@@ -38,4 +38,31 @@ class Example2Spec extends FreeSpec with Matchers {
     }
 
   }
+
+  "TypeExample" - {
+
+    import Example2.TypeExample._
+
+    "verify" - {
+
+      "should fail with reason when try to verify verified account" in {
+        verify(
+          VerifiedAccount("John", "john@email.com")
+        ) shouldBe Left("Already verified")
+      }
+
+      "should fail with reason when try to verify premium account" in {
+        verify(
+          PremiumAccount("John", "john@email.com")
+        ) shouldBe Left("Already verified")
+      }
+
+      "should become verified account when verify verified account" in {
+        verify(
+          NonVerifiedAccount("John", "john@email.com")
+        ) shouldBe Right(VerifiedAccount("John", "john@email.com"))
+      }
+    }
+
+  }
 }
