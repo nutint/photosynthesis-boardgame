@@ -1,4 +1,4 @@
-package com.nat.photosynthesis.model
+package com.nat.photosynthesis.service.model
 
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import org.scalatest.{FreeSpec, Matchers}

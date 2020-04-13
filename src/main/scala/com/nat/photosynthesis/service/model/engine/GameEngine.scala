@@ -1,4 +1,6 @@
-package com.nat.photosynthesis.model
+package com.nat.photosynthesis.service.model.engine
+
+import com.nat.photosynthesis.service.model._
 
 sealed trait GameEngine
 
@@ -203,3 +205,7 @@ case class GameOver(
   playerBoards: List[PlayerBoard],
   forestBlocks: List[Block]
 ) extends GameEngine
+
+object GameEngine {
+  def apply(): GameEngine = Registration(Nil, TokenStock(Nil, Nil, Nil, Nil))
+}

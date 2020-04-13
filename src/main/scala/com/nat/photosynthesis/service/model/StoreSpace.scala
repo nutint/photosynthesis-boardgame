@@ -1,4 +1,4 @@
-package com.nat.photosynthesis.model
+package com.nat.photosynthesis.service.model
 
 import scala.util.Try
 

@@ -1,6 +1,6 @@
-package com.nat.photosynthesis.model
+package com.nat.photosynthesis.service.model
 
-import com.nat.photosynthesis.model.Plant.Resource
+import com.nat.photosynthesis.service.model.Plant.Resource
 
 case class PlayerBoard(
   player: Player,
