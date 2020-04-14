@@ -58,7 +58,10 @@ object Example2 {
     case class NonVerifiedAccount(name: String, email: String, lastActivityAt: Date) extends Account {
       def verify: VerifiedAccount = VerifiedAccount(name, email)
     }
-    case class VerifiedAccount(name: String, email: String) extends Account
+    case class VerifiedAccount(name: String, email: String) extends Account {
+      def becomePremium(premiumExpireDate: Date): PremiumAccount =
+        PremiumAccount(name, email, premiumExpireDate)
+    }
     case class PremiumAccount(name: String, email: String, expireDate: Date) extends Account
 
     def verify(account: Account): Either[String, Account] = account match {
@@ -77,5 +80,7 @@ object Example2 {
       if(nonVerifiedAccount.lastActivityAt.before(date)) Right(())
       else Left("Too early to deactivate the account")
 
+    def activatePremiumAccount(verifiedAccount: VerifiedAccount, premiumExpireDate: Date): PremiumAccount =
+      verifiedAccount.becomePremium(premiumExpireDate)
   }
 }
