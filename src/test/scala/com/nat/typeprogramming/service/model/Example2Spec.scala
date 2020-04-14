@@ -4,6 +4,12 @@ import org.scalatest.{FreeSpec, Matchers}
 
 class Example2Spec extends FreeSpec with Matchers {
 
-  "should be success" in {
-  }
+  /**
+   * REQ-01
+   * User Story
+   * As a NonVerified Account
+   * I want to verify account
+   * So I can use some extra features for verified account
+   */
+
 }
