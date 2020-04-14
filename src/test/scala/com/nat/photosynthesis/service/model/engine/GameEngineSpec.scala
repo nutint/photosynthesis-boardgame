@@ -51,12 +51,12 @@ class GameEngineSpec extends FreeSpec with Matchers
       }
     }
 
-    "setTokenStock" - {
+    "setScoringTokenStacks" - {
       "should be able to set TokenStock" in {
-        val tokenStock = TokenStock(Nil, Nil, Nil, List(ScoringTokenTierFour(1)))
+        val tokenStock = ScoringTokenStacks(Nil, Nil, Nil, List(ScoringTokenTierFour(1)))
         onlyJohnGameEngineState
-          .setTokenStock(tokenStock) shouldBe
-        onlyJohnGameEngineState.copy(tokenStock =  tokenStock)
+          .setScoringTokenStacks(tokenStock) shouldBe
+        onlyJohnGameEngineState.copy(scoringTokenStacks =  tokenStock)
       }
     }
 
@@ -70,21 +70,21 @@ class GameEngineSpec extends FreeSpec with Matchers
           SettingUp(
             activePlayerPosition = 0,
             playerBoards = johnWithRoseGameEngine.players.map(_.initBoard),
-            forestBlocks = Nil,
-            tokenStock = TokenStock(Nil, Nil, Nil, Nil)
+            blocks = Nil,
+            scoringTokenStacks = ScoringTokenStacks(Nil, Nil, Nil, Nil)
           )
         )
       }
 
       "should transfer TokenStock from Registration state" in {
-        val tokenStock = TokenStock(Nil, Nil, Nil, List(ScoringTokenTierFour(12)))
+        val tokenStock = ScoringTokenStacks(Nil, Nil, Nil, List(ScoringTokenTierFour(12)))
         johnWithRoseGameEngine
-          .setTokenStock(tokenStock).startGame shouldBe Right(
+          .setScoringTokenStacks(tokenStock).startGame shouldBe Right(
           engine.SettingUp(
             activePlayerPosition = 0,
             playerBoards = johnWithRoseGameEngine.players.map(_.initBoard),
-            forestBlocks = Nil,
-            tokenStock = tokenStock
+            blocks = Nil,
+            scoringTokenStacks = tokenStock
           )
         )
       }
@@ -96,8 +96,8 @@ class GameEngineSpec extends FreeSpec with Matchers
     val nonPlayerPlaceTreeYet = engine.SettingUp(
       activePlayerPosition = 0,
       playerBoards = johnAndRose.map(_.initBoard),
-      forestBlocks = Nil,
-      tokenStock = TokenStock()
+      blocks = Nil,
+      scoringTokenStacks = ScoringTokenStacks()
     )
 
     "activePlayer" - {
@@ -125,7 +125,7 @@ class GameEngineSpec extends FreeSpec with Matchers
       "active player do the place" - {
 
         "should have new location available in forestBlock and correct tree type" in {
-          verifySuccessAttributes(0, 0, _.forestBlocks should contain(boardLocation.toForestBlock(smallTree)))
+          verifySuccessAttributes(0, 0, _.blocks should contain(boardLocation.toForestBlock(smallTree)))
         }
 
         "should move to next player" in {
@@ -141,26 +141,26 @@ class GameEngineSpec extends FreeSpec with Matchers
       "should not allow non-active player to plant the tree" in {
         nonPlayerPlaceTreeYet
           .placeTree(1, boardLocation) match {
-          case Left(msg) => msg shouldBe s"Not player 1 turn yet, currently player ${nonPlayerPlaceTreeYet.activePlayerPosition}"
-          case _ => assert(false)
-        }
+            case Left(msg) => msg shouldBe s"Not player 1 turn yet, currently player ${nonPlayerPlaceTreeYet.activePlayerPosition}"
+            case _ => assert(false)
+          }
       }
 
       "should not allow place any plant on the non-edge location" in {
         nonPlayerPlaceTreeYet
           .placeTree(0, Location(0, 0, 0)) match {
-          case Left(msg) => msg shouldBe s"Cannot place on location (0, 0, 0) since it is not edge location"
-          case _ => assert(false)
-        }
+            case Left(msg) => msg shouldBe s"Cannot place on location (0, 0, 0) since it is not external edge"
+            case _ => assert(false)
+          }
       }
 
       "should not allow to place on the same location" in {
         Right[String, SettingUp](nonPlayerPlaceTreeYet)
           .flatMap(_.placeTree(0, boardLocation))
           .flatMap(_.placeTree(1, boardLocation)) match {
-          case Left(msg) => msg shouldBe "Unable to place to non empty location"
-          case _ => assert(false)
-        }
+            case Left(msg) => msg shouldBe "Unable to place to non empty location"
+            case _ => assert(false)
+          }
       }
     }
 
@@ -188,23 +188,23 @@ class GameEngineSpec extends FreeSpec with Matchers
         val calculatedScoreBoard = extractedPlacedTreeGameState.playerBoards
             .map { board =>
               val playerBoardScore = extractedPlacedTreeGameState
-                .forestBlocks
+                .blocks
                 .filter(_.plantItem.plantType == board.player.plantType)
-                .map(_.calculateScore(SunLocation0, extractedPlacedTreeGameState.forestBlocks))
+                .map(_.calculateScore(SunLocation0, extractedPlacedTreeGameState.blocks))
                 .sum
-              board.copy(sun = playerBoardScore)
+              board.copy(lightPoints = playerBoardScore)
             }
 
         placedTreeGameState
           .flatMap(_.startPlaying) shouldBe Right(
             Playing(
               activePlayerPosition = 0,
-              startingPlayer = 0,
+              firstPlayerTokenPosition = 0,
               sunLocation = SunLocation0,
               day = 0,
               playerBoards = calculatedScoreBoard,
-              forestBlocks = extractedPlacedTreeGameState.forestBlocks,
-              tokenStock = extractedPlacedTreeGameState.tokenStock
+              blocks = extractedPlacedTreeGameState.blocks,
+              scoringTokenStacks = extractedPlacedTreeGameState.scoringTokenStacks
             )
           )
       }
@@ -224,12 +224,12 @@ class GameEngineSpec extends FreeSpec with Matchers
   "GameEnginePlaying" - {
     val initialState = engine.Playing(
       activePlayerPosition = 0,
-      startingPlayer = 0,
+      firstPlayerTokenPosition = 0,
       sunLocation = SunLocation0,
       day = 0,
       playerBoards = List(Player("John", Green), Player("Doe", Blue), Player("Sarah", Orange)).map(_.initBoard),
-      forestBlocks = Nil,
-      tokenStock = TokenStock()
+      blocks = Nil,
+      scoringTokenStacks = ScoringTokenStacks()
     )
 
     "passNextPlayer" - {
@@ -237,16 +237,16 @@ class GameEngineSpec extends FreeSpec with Matchers
         initialState.passNextPlayer shouldBe initialState.copy(activePlayerPosition = 1)
       }
       "should set next and starting player to the same, and move sun location if the last player of the round is end turn" in {
-        initialState.copy(activePlayerPosition = 2, startingPlayer = 0).passNextPlayer shouldBe initialState.copy(activePlayerPosition = 1, startingPlayer = 1, sunLocation = SunLocation1)
-        initialState.copy(activePlayerPosition = 1, startingPlayer = 2).passNextPlayer shouldBe initialState.copy(activePlayerPosition = 0, startingPlayer = 0, sunLocation = SunLocation1)
+        initialState.copy(activePlayerPosition = 2, firstPlayerTokenPosition = 0).passNextPlayer shouldBe initialState.copy(activePlayerPosition = 1, firstPlayerTokenPosition = 1, sunLocation = SunLocation1)
+        initialState.copy(activePlayerPosition = 1, firstPlayerTokenPosition = 2).passNextPlayer shouldBe initialState.copy(activePlayerPosition = 0, firstPlayerTokenPosition = 0, sunLocation = SunLocation1)
       }
       "should move player token, move sun, increase day, and set next player as first player of next round" in {
-        initialState.copy(activePlayerPosition = 1, startingPlayer = 2, sunLocation = SunLocation5).passNextPlayer shouldBe
-          initialState.copy(activePlayerPosition = 0, startingPlayer = 0, sunLocation = SunLocation0, day = 1)
+        initialState.copy(activePlayerPosition = 1, firstPlayerTokenPosition = 2, sunLocation = SunLocation5).passNextPlayer shouldBe
+          initialState.copy(activePlayerPosition = 0, firstPlayerTokenPosition = 0, sunLocation = SunLocation0, day = 1)
       }
       "should end the game if the sun come back to the starting point and there is the last round token remove from the board" in {
         val Playing(_, _, _, _, playerBoard, forestBlock, _) = initialState
-        initialState.copy(activePlayerPosition = 1, startingPlayer = 2, sunLocation = SunLocation5, day = 3).passNextPlayer shouldBe
+        initialState.copy(activePlayerPosition = 1, firstPlayerTokenPosition = 2, sunLocation = SunLocation5, day = 3).passNextPlayer shouldBe
           GameOver(playerBoard, forestBlock)
       }
     }
@@ -258,7 +258,7 @@ class GameEngineSpec extends FreeSpec with Matchers
         val motherLocation = Location(1, 1, 0)
         val seedLocation = Location(0, 0, 0)
         initialState
-          .copy(forestBlocks = forestBlocks, playerBoards = playerBoards)
+          .copy(blocks = forestBlocks, playerBoards = playerBoards)
           .playerSeedPlant(Player("other", Blue), motherLocation, seedLocation) shouldBe Left("Unable to seed: Player not found")
       }
       "should fail if the seed location is not empty" in {
@@ -268,7 +268,7 @@ class GameEngineSpec extends FreeSpec with Matchers
         val motherLocation = Location(1, 1, 0)
         val seedLocation = Location(0, 0, 0)
         initialState
-          .copy(forestBlocks = forestBlocks, playerBoards = playerBoards)
+          .copy(blocks = forestBlocks, playerBoards = playerBoards)
           .playerSeedPlant(john, motherLocation, seedLocation) shouldBe Left("Unable to seed: Target location is not empty")
       }
       "should success if the location is the same line and in seeding range" in {
@@ -278,7 +278,7 @@ class GameEngineSpec extends FreeSpec with Matchers
         val motherLocation = Location(1, 1, 0)
         val seedLocation = Location(0, 2, 2)
         initialState
-          .copy(forestBlocks = forestBlocks, playerBoards = playerBoards)
+          .copy(blocks = forestBlocks, playerBoards = playerBoards)
           .playerSeedPlant(john, motherLocation, seedLocation) shouldBe Left("Unable to seed: Not the same line")
       }
       "should fail if the plant is not the same plant from player" in {
@@ -288,7 +288,7 @@ class GameEngineSpec extends FreeSpec with Matchers
         val motherLocation = Location(0, 0, 0)
         val seedLocation = Location(0, 1, 1)
         initialState
-          .copy(forestBlocks = forestBlocks, playerBoards = playerBoards)
+          .copy(blocks = forestBlocks, playerBoards = playerBoards)
           .playerSeedPlant(john, motherLocation, seedLocation) shouldBe Left("Unable to seed: Not player's plant")
       }
       "should fail when the mother location does not exists on the board" in {
@@ -298,7 +298,7 @@ class GameEngineSpec extends FreeSpec with Matchers
         val motherLocation = Location(0, 0, 0)
         val seedLocation = Location(0, 0, 0)
         initialState
-          .copy(forestBlocks = forestBlocks, playerBoards = playerBoards)
+          .copy(blocks = forestBlocks, playerBoards = playerBoards)
           .playerSeedPlant(john, motherLocation, seedLocation) shouldBe Left("Unable to seed: Plant not found")
       }
       "should fail if the plant is in cool down" in {
@@ -308,7 +308,7 @@ class GameEngineSpec extends FreeSpec with Matchers
         val motherLocation = Location(1, 1, 0)
         val seedLocation = Location(0, 0, 0)
         initialState
-          .copy(forestBlocks = forestBlocks, playerBoards = playerBoards)
+          .copy(blocks = forestBlocks, playerBoards = playerBoards)
           .playerSeedPlant(john, motherLocation, seedLocation) shouldBe Left("Unable to seed: Plant is in cool down")
       }
       "should fail if the the mother plant is still cool down" in {
@@ -318,7 +318,7 @@ class GameEngineSpec extends FreeSpec with Matchers
         val motherLocation = Location(1, 1, 0)
         val seedLocation = Location(0, 0, 0)
         initialState
-          .copy(forestBlocks = forestBlocks, playerBoards = playerBoards)
+          .copy(blocks = forestBlocks, playerBoards = playerBoards)
           .playerSeedPlant(john, motherLocation, seedLocation) shouldBe Left("Unable to seed: Plant is in cool down")
       }
       "should fail if the mother plant is seed" in {
@@ -328,7 +328,7 @@ class GameEngineSpec extends FreeSpec with Matchers
         val motherLocation = Location(1, 1, 0)
         val seedLocation = Location(0, 0, 0)
         initialState
-          .copy(forestBlocks = forestBlocks, playerBoards = playerBoards)
+          .copy(blocks = forestBlocks, playerBoards = playerBoards)
           .playerSeedPlant(john, motherLocation, seedLocation) shouldBe Left("Unable to seed: Cannot seed")
       }
       "should fail if the location if out of range" in {
@@ -338,7 +338,7 @@ class GameEngineSpec extends FreeSpec with Matchers
         val motherLocation = Location(1, 1, 0)
         val seedLocation = Location(-2, 1, 3)
         initialState
-          .copy(forestBlocks = forestBlocks, playerBoards = playerBoards)
+          .copy(blocks = forestBlocks, playerBoards = playerBoards)
           .playerSeedPlant(john, motherLocation, seedLocation) shouldBe Left("Unable to seed: Out of range")
       }
       "should success if all condition is satisfied" in {
@@ -349,14 +349,14 @@ class GameEngineSpec extends FreeSpec with Matchers
         val motherLocation = Location(1, 1, 0)
         val seedLocation = Location(-1, 1, 2)
         val mockedInitialState = initialState
-          .copy(forestBlocks = forestBlocks, playerBoards = playerBoards)
+          .copy(blocks = forestBlocks, playerBoards = playerBoards)
 
         val expectedInitialState = {
-          val updatedForestBlocks = mockedInitialState.forestBlocks.map {
+          val updatedForestBlocks = mockedInitialState.blocks.map {
             case fb @ Block(bl, pi) if bl == motherLocation && pi.plantType == john.plantType => fb.copy(plantItem = sa.seed)
             case a => a
           }
-          Right(mockedInitialState.copy(forestBlocks = updatedForestBlocks :+ Block(seedLocation, Seed(john.plantType))))
+          Right(mockedInitialState.copy(blocks = updatedForestBlocks :+ Block(seedLocation, Seed(john.plantType))))
         }
         mockedInitialState
           .playerSeedPlant(john, motherLocation, seedLocation) shouldBe expectedInitialState
@@ -366,25 +366,25 @@ class GameEngineSpec extends FreeSpec with Matchers
       "should fail if there is no plant in the location" in {
         val john = Player("John", Blue)
         val forestBlocks = Nil
-        initialState.copy(forestBlocks = forestBlocks)
+        initialState.copy(blocks = forestBlocks)
           .grow(john, Location(1, 1, 0)) shouldBe Left("No plant here")
       }
       "should fail if the plant is not owned by player" in {
         val john = Player("John", Blue)
         val forestBlocks = List(Block(1, 1, 0, MediumTree(Green)))
-        initialState.copy(forestBlocks = forestBlocks)
+        initialState.copy(blocks = forestBlocks)
           .grow(john, Location(1, 1, 0)) shouldBe Left("Not own by player John")
       }
       "should fail if the plant is during cool down" in {
         val john = Player("John", Blue)
         val forestBlocks = List(Block(1, 1, 0, CoolingDownMediumTree(Blue)))
-        initialState.copy(forestBlocks = forestBlocks)
+        initialState.copy(blocks = forestBlocks)
           .grow(john, Location(1, 1, 0)) shouldBe Left("Cooling down")
       }
       "should fail if the tree is already large tree" in {
         val john = Player("John", Blue)
         val forestBlocks = List(Block(1, 1, 0, LargeTree(Blue)))
-        initialState.copy(forestBlocks = forestBlocks)
+        initialState.copy(blocks = forestBlocks)
           .grow(john, Location(1, 1, 0)) shouldBe Left("Already large tree")
       }
       "should fail if player is not in the board" in {
@@ -392,7 +392,7 @@ class GameEngineSpec extends FreeSpec with Matchers
         val forestBlocks = List(Block(1, 1, 0, SmallTree(Blue)))
         initialState
           .copy(
-            forestBlocks = forestBlocks,
+            blocks = forestBlocks,
             playerBoards = List(john.copy(name = "Other").initBoard)
           )
           .grow(john, Location(1, 1, 0)) shouldBe Left("Player not found")
@@ -401,20 +401,20 @@ class GameEngineSpec extends FreeSpec with Matchers
       "should fail if there is no available bigger tree in the stock" in {
         val john = Player("John", Blue)
         val forestBlocks = List(Block(1, 1, 0, MediumTree(Blue)))
-        val playerBoards = List(john.initBoard.copy(stock = Nil).copy(sun = 9))
+        val playerBoards = List(john.initBoard.copy(stock = Nil).copy(lightPoints = 9))
         initialState
           .copy(
-            forestBlocks = forestBlocks,
+            blocks = forestBlocks,
             playerBoards = playerBoards)
           .grow(john, Location(1, 1, 0)) shouldBe Left("Not enough tree/seed in stock")
       }
       "should fail if there is available bigger tree but not enough sun" in {
         val john = Player("John", Blue)
         val forestBlocks = List(Block(1, 1, 0, MediumTree(Blue)))
-        val playerBoards = List(john.initBoard.copy(stock = Nil).copy(sun = 0))
+        val playerBoards = List(john.initBoard.copy(stock = Nil).copy(lightPoints = 0))
         initialState
           .copy(
-            forestBlocks = forestBlocks,
+            blocks = forestBlocks,
             playerBoards = playerBoards)
           .grow(john, Location(1, 1, 0)) shouldBe Left("Not enough sun")
       }
@@ -422,7 +422,7 @@ class GameEngineSpec extends FreeSpec with Matchers
         val john = Player("John", Blue)
         val johnsBoard = john.initBoard.copy(
           stock = List(LargeTree(Blue)),
-          sun = 3,
+          lightPoints = 3,
           store = PlantStore(Blue).take(MediumTree(Blue)).toOption.get
         )
         val johnForestBlock = Block(1, 1, 0, MediumTree(Blue))
@@ -433,12 +433,12 @@ class GameEngineSpec extends FreeSpec with Matchers
         val expectedForestBlock = johnForestBlock.copy(plantItem = CoolingDownLargeTree(Blue))
         initialState
           .copy(
-            forestBlocks = forestBlocks,
+            blocks = forestBlocks,
             playerBoards = playerBoards)
           .grow(john, Location(1, 1, 0)) shouldBe Right(
             initialState
               .copy(
-                forestBlocks = List(expectedForestBlock),
+                blocks = List(expectedForestBlock),
                 playerBoards = List(expectedJohnBoardAfterPlace.toOption.get)
               )
         )
@@ -447,7 +447,7 @@ class GameEngineSpec extends FreeSpec with Matchers
         val john = Player("John", Blue)
         val johnsBoard = john.initBoard.copy(
           stock = List(LargeTree(Blue)),
-          sun = 3,
+          lightPoints = 3,
           store = PlantStore(Blue)
         )
         val johnForestBlock = Block(1, 1, 0, MediumTree(Blue))
@@ -458,12 +458,12 @@ class GameEngineSpec extends FreeSpec with Matchers
         val expectedForestBlock = johnForestBlock.copy(plantItem = CoolingDownLargeTree(Blue))
         initialState
           .copy(
-            forestBlocks = forestBlocks,
+            blocks = forestBlocks,
             playerBoards = playerBoards)
           .grow(john, Location(1, 1, 0)) shouldBe Right(
           initialState
             .copy(
-              forestBlocks = List(expectedForestBlock),
+              blocks = List(expectedForestBlock),
               playerBoards = List(expectedJohnBoardAfterPlace.toOption.get)
             )
         )
@@ -503,10 +503,10 @@ class GameEngineSpec extends FreeSpec with Matchers
       }
       "should deduct sun, place bought item in stock, and deduct item from the store if there is enough sun, and available tree in the player's board" in {
         val john = Player("John", Green)
-        val johnBoard = john.initBoard.copy(sun = 9)
+        val johnBoard = john.initBoard.copy(lightPoints = 9)
         val expectedJohnBoard = johnBoard
             .copy(
-              sun = 9 - Seed(Green).growCost,
+              lightPoints = 9 - Seed(Green).growCost,
               stock = johnBoard.stock :+ Seed(Green),
               store = johnBoard.store.take(Seed(Green)).toOption.get)
         initialState

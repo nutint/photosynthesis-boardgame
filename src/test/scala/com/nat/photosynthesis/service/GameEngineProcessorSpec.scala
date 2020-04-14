@@ -19,21 +19,21 @@ class GameEngineProcessorSpec
       "Registration state" - {
 
         "should be able to add player when the room is empty" in {
-          val gameEngine = Registration(Nil, TokenStock())
+          val gameEngine = Registration(Nil, ScoringTokenStacks())
           val john = Player("John", Green)
-          gameEngine.processCommand(AddPlayer(john)) shouldBe Right(engine.Registration(john :: Nil, TokenStock()))
+          gameEngine.processCommand(AddPlayer(john)) shouldBe Right(engine.Registration(john :: Nil, ScoringTokenStacks()))
         }
 
         "should not be able to add player if the plant type is already have" in {
           val john = Player("John", Green)
-          val gameEngine = engine.Registration(john :: Nil, TokenStock())
+          val gameEngine = engine.Registration(john :: Nil, ScoringTokenStacks())
           val mary = Player("Mary", Green)
           gameEngine.processCommand(AddPlayer(mary)) shouldBe Left("Unable to add player with same plant type")
         }
 
         "should not be able to add player if the name is duplicate" in {
           val john = Player("John", Green)
-          val gameEngine = engine.Registration(john :: Nil, TokenStock())
+          val gameEngine = engine.Registration(john :: Nil, ScoringTokenStacks())
           val anotherJohn = Player("John", Blue)
           gameEngine.processCommand(AddPlayer(anotherJohn)) shouldBe Left("Unable to add player with the same name")
         }
@@ -51,7 +51,7 @@ class GameEngineProcessorSpec
       "Registration state" - {
 
         "should be able to start state if the player is more than 2" in {
-          val gameEngine = Registration(Player("John", Green) :: Player("Mary", Blue) :: Nil, TokenStock())
+          val gameEngine = Registration(Player("John", Green) :: Player("Mary", Blue) :: Nil, ScoringTokenStacks())
           gameEngine.processCommand(StartGame) match {
             case Right(_) => assert(true)
             case _ => assert(false)
@@ -59,7 +59,7 @@ class GameEngineProcessorSpec
         }
 
         "should not be able to start game if the player is not more than 2" in {
-          val gameEngine = Registration(Player("John", Green) :: Nil, TokenStock())
+          val gameEngine = Registration(Player("John", Green) :: Nil, ScoringTokenStacks())
           gameEngine.processCommand(StartGame) match {
             case Left(_) => assert(true)
             case _ => assert(false)
@@ -77,7 +77,7 @@ class GameEngineProcessorSpec
         AddPlayer(Player("Madonna", Yellow)) ::
         StartGame :: Nil
 
-      val registration = Registration(Nil, TokenStock())
+      val registration = Registration(Nil, ScoringTokenStacks())
       registration.processCommands(commands) match {
         case Right(_) => assert(true)
         case _ => assert(false)

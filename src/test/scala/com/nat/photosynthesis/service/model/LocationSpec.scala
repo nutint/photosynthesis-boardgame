@@ -15,11 +15,11 @@ class LocationSpec extends FreeSpec with Matchers {
   "isEdgeLocation" - {
     "should returns true when this is the edge location" in {
       val location = Location(3, 3, 0)
-      location.isEdgeLocation shouldBe true
+      location.isExternalEdge shouldBe true
     }
     "should returns false if this is not the edge location" in {
       val location = Location(0, 0, 0)
-      location.isEdgeLocation shouldBe false
+      location.isExternalEdge shouldBe false
     }
   }
 

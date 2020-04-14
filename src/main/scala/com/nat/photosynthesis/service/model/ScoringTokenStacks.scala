@@ -1,13 +1,13 @@
 package com.nat.photosynthesis.service.model
 
-case class TokenStock(
+case class ScoringTokenStacks(
   tier1: List[ScoringTokenTierOne],
   tier2: List[ScoringTokenTierTwo],
   tier3: List[ScoringTokenTierThree],
   tier4: List[ScoringTokenTierFour]
 )
 
-case object TokenStock
+case object ScoringTokenStacks
 {
-  def apply(): TokenStock = TokenStock(Nil, Nil, Nil, Nil)
+  def apply(): ScoringTokenStacks = ScoringTokenStacks(Nil, Nil, Nil, Nil)
 }

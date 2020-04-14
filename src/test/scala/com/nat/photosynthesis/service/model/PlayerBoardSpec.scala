@@ -10,7 +10,7 @@ class PlayerBoardSpec extends FreeSpec with Matchers {
       val originalPlayerBoard = Player("John", Green).initBoard
       originalPlayerBoard
         .withdrawResource(Resource(SmallTree(Green), 0)) shouldBe Right(
-          originalPlayerBoard.copy(sun = originalPlayerBoard.sun, stock = originalPlayerBoard.stock.diff(List(SmallTree(Green))))
+          originalPlayerBoard.copy(lightPoints = originalPlayerBoard.lightPoints, stock = originalPlayerBoard.stock.diff(List(SmallTree(Green))))
       )
     }
     "should return error if not enough sun" in {
@@ -48,7 +48,7 @@ class PlayerBoardSpec extends FreeSpec with Matchers {
     }
 
     "should fail if there is no remaining item in the store" in {
-      val johnBoard = Player("John", Green).initBoard.copy(sun = 9)
+      val johnBoard = Player("John", Green).initBoard.copy(lightPoints = 9)
       val emptySeedStore = johnBoard.store
         .take(Seed(Green))
         .flatMap(_.take(Seed(Green)))
@@ -59,13 +59,13 @@ class PlayerBoardSpec extends FreeSpec with Matchers {
     }
 
     "should deducted sun, deduct deduct store space, and add to the stock if there is enough sun" in {
-      val johnBoard = Player("John", Green).initBoard.copy(sun = 9)
+      val johnBoard = Player("John", Green).initBoard.copy(lightPoints = 9)
       val johnStore = johnBoard.store
       val price = johnStore.getPrice(Seed(Green)).toOption.get
       johnBoard
         .buy(Seed(Green)) shouldBe Right(johnBoard.copy(
           store = johnStore.take(Seed(Green)).toOption.get,
-          sun = johnBoard.sun - price,
+          lightPoints = johnBoard.lightPoints - price,
           stock = johnBoard.stock :+ Seed(Green)
         ))
     }

@@ -7,7 +7,7 @@ case class Player(
   def initBoard: PlayerBoard = PlayerBoard(
     player = copy(),
     tokens = Nil,
-    sun = 0,
+    lightPoints = 0,
     stock = List(
       List(Seed(plantType), Seed(plantType)),
       List(SmallTree(plantType), SmallTree(plantType)),

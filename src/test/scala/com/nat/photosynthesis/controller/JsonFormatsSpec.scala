@@ -54,7 +54,7 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
 
       "should return object when decode success" in {
         val sourceString = """{ "x": 1, "y": 2, "z": 3 }""".parseJson
-        boardLocationFormat.read(sourceString) shouldBe Location(1, 2, 3)
+        locationFormat.read(sourceString) shouldBe Location(1, 2, 3)
       }
       "should throw error when decode fail" in {
         val sourceString = """{ "y": 2, "z": 3 }""".parseJson
@@ -65,8 +65,8 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
     "write" - {
       "should write decodable json" in {
         val expectedBoardLocation = Location(1, 2, 3)
-        boardLocationFormat.read(
-          boardLocationFormat.write(expectedBoardLocation)
+        locationFormat.read(
+          locationFormat.write(expectedBoardLocation)
         ) shouldBe expectedBoardLocation
       }
     }
@@ -117,7 +117,7 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
           )
 
         forAll(examples) { (tier, expectedTier) => {
-          BoardLocationTierFormat.read(JsString(tier)) shouldBe expectedTier
+          LocationTierFormat.read(JsString(tier)) shouldBe expectedTier
         }}
       }
       "should fail if the input json is not correct string value" in {
@@ -129,8 +129,8 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
     }
     "write" - {
       "should write decodable json" in {
-        BoardLocationTierFormat.read(
-          BoardLocationTierFormat.write(LocationTier1$)
+        LocationTierFormat.read(
+          LocationTierFormat.write(LocationTier1$)
         ) shouldBe LocationTier1$
       }
     }
@@ -149,7 +149,7 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
             ("DifferentLine", DifferentLine)
           )
         forAll(examples) { (jsString, expected) =>
-          DistanceFormat.read(JsString(jsString)) shouldBe expected
+          DisplacementFormat.read(JsString(jsString)) shouldBe expected
         }
       }
 
@@ -179,8 +179,8 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
             DifferentLine
           )
         forAll(examples) { example =>
-          DistanceFormat.read(
-            DistanceFormat.write(example)
+          DisplacementFormat.read(
+            DisplacementFormat.write(example)
           ) shouldBe example
         }
       }
@@ -202,7 +202,7 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
             ("green large-tree", LargeTree(Green))
           )
         forAll(examples) { (jsString, expected) =>
-          PlantItemFormat.read(JsString(jsString)) shouldBe expected
+          PlantFormat.read(JsString(jsString)) shouldBe expected
         }
       }
 
@@ -236,8 +236,8 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
             LargeTree(Green)
           )
         forAll(examples) { example =>
-          PlantItemFormat.read(
-            PlantItemFormat.write(example)
+          PlantFormat.read(
+            PlantFormat.write(example)
           ) shouldBe example
         }
       }
@@ -307,6 +307,14 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
     }
   }
 
+  "playerBoardFormat" - {
+    "read" - {
+      "should be able to read the following input" in {
+
+      }
+    }
+  }
+
   "TokenFormat" - {
     "read" - {
       "should be able to read the following input" in {
@@ -319,7 +327,7 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
             ("Tier4 40", ScoringTokenTierFour(40))
           )
         forAll(examples) { (jsonString, expected) =>
-          TokenFormat.read(JsString(jsonString)) shouldBe expected
+          ScoringTokenFormat.read(JsString(jsonString)) shouldBe expected
         }
       }
       "should be failed with the following inputs" in {
@@ -348,8 +356,8 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
             ScoringTokenTierFour(4)
           )
         forAll(examples) { example =>
-          TokenFormat.read(
-            TokenFormat.write(example)
+          ScoringTokenFormat.read(
+            ScoringTokenFormat.write(example)
           ) shouldBe example
         }
       }
@@ -418,7 +426,7 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
 
       val expectedRegistration = Registration(
         Player("John", Green) :: Player("Marry", Yellow) :: Player("Madonna", Blue) :: Nil,
-        TokenStock(
+        ScoringTokenStacks(
           List(12, 13, 11).map(ScoringTokenTierOne),
           List(22, 21, 23).map(ScoringTokenTierTwo),
           List(25, 27, 28).map(ScoringTokenTierThree),
@@ -438,7 +446,7 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
               |    { "name": "Marry", "plantType": "yellow"},
               |    { "name": "Madonna", "plantType": "blue"}
               |  ],
-              |  "tokenStock": {
+              |  "scoringTokenStacks": {
               |    "tier1": ["tier1 12", "tier1 13", "tier1 11"],
               |    "tier2": ["tier2 22", "tier2 21", "tier2 23"],
               |    "tier3": ["tier3 25", "tier3 27", "tier3 28"],
@@ -447,7 +455,7 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
               |}
               |""".stripMargin.parseJson
 
-          gameEngineRegistrationStateFormat.read(jsonObj) shouldBe expectedRegistration
+          registrationFormat.read(jsonObj) shouldBe expectedRegistration
           GameEngineFormats.read(jsonObj) shouldBe expectedRegistration
         }
 
@@ -461,7 +469,7 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
               |    { "name": "Marry", "plantType": "yellow"},
               |    { "name": "Madonna", "plantType": "blue"}
               |  ],
-              |  "tokenStock": {
+              |  "scoringTokenStacks": {
               |    "tier1": ["tier1 12", "tier1 13", "tier1 11"],
               |    "tier2": ["tier2 22", "tier2 21", "tier2 23"],
               |    "tier3": ["tier3 25", "tier3 27", "tier3 28"],
@@ -477,8 +485,8 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
 
       "write" - {
         "should be able to write and read" in {
-          gameEngineRegistrationStateFormat.read(
-            gameEngineRegistrationStateFormat.write(expectedRegistration)
+          registrationFormat.read(
+            registrationFormat.write(expectedRegistration)
           ) shouldBe expectedRegistration
 
           GameEngineFormats.read(
@@ -493,8 +501,8 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
       val expectedSettingUp = SettingUp(
         activePlayerPosition = 0,
         playerBoards = List(Player("John", Green), Player("Marry", Yellow), Player("Madonna", Blue)).map(_.initBoard),
-        forestBlocks = Nil,
-        tokenStock = TokenStock(
+        blocks = Nil,
+        scoringTokenStacks = ScoringTokenStacks(
           List(12, 13, 11).map(ScoringTokenTierOne),
           List(22, 21, 23).map(ScoringTokenTierTwo),
           List(25, 27, 28).map(ScoringTokenTierThree),
@@ -513,8 +521,8 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
              |  "state": "settingup",
              |  "activePlayerPosition": 0,
              |  "playerBoards": ${expectedSettingUp.playerBoards.map(playerBoard => playerBoardFormat.write(playerBoard)).toJson},
-             |  "forestBlocks": ${expectedSettingUp.forestBlocks.map(forestBlock => forestBlockFormat.write(forestBlock)).toJson},
-             |  "tokenStock": {
+             |  "blocks": ${expectedSettingUp.blocks.map(forestBlock => blockFormat.write(forestBlock)).toJson},
+             |  "scoringTokenStacks": {
              |    "tier1": ["tier1 12", "tier1 13", "tier1 11"],
              |    "tier2": ["tier2 22", "tier2 21", "tier2 23"],
              |    "tier3": ["tier3 25", "tier3 27", "tier3 28"],
@@ -523,13 +531,13 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
              |}
              |""".stripMargin.parseJson
 
-        gameEnginePlacingFirst2TreesStateFormat.read(jsonObj) shouldBe expectedSettingUp
+        settingUpFormat.read(jsonObj) shouldBe expectedSettingUp
         GameEngineFormats.read(jsonObj) shouldBe expectedSettingUp
       }
 
       "write" in {
-        gameEnginePlacingFirst2TreesStateFormat.read(
-          gameEnginePlacingFirst2TreesStateFormat.write(expectedSettingUp)
+        settingUpFormat.read(
+          settingUpFormat.write(expectedSettingUp)
         ) shouldBe expectedSettingUp
 
         GameEngineFormats.read(
@@ -542,12 +550,12 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
 
       val expectedPlaying = Playing(
         activePlayerPosition = 0,
-        startingPlayer = 0,
+        firstPlayerTokenPosition = 0,
         sunLocation = SunLocation0,
         day = 0,
         playerBoards = List(Player("John", Green), Player("Marry", Yellow), Player("Madonna", Blue)).map(_.initBoard),
-        forestBlocks = Nil,
-        tokenStock = TokenStock(
+        blocks = Nil,
+        scoringTokenStacks = ScoringTokenStacks(
           List(12, 13, 11).map(ScoringTokenTierOne),
           List(22, 21, 23).map(ScoringTokenTierTwo),
           List(25, 27, 28).map(ScoringTokenTierThree),
@@ -565,12 +573,12 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
              |{
              |  "state": "playing",
              |  "activePlayerPosition": 0,
-             |  "startingPlayer": 0,
+             |  "firstPlayerTokenPosition": 0,
              |  "sunLocation": 0,
              |  "day": 0,
              |  "playerBoards": ${expectedPlaying.playerBoards.map(playerBoard => playerBoardFormat.write(playerBoard)).toJson},
-             |  "forestBlocks": ${expectedPlaying.forestBlocks.map(forestBlock => forestBlockFormat.write(forestBlock)).toJson},
-             |  "tokenStock": {
+             |  "blocks": ${expectedPlaying.blocks.map(forestBlock => blockFormat.write(forestBlock)).toJson},
+             |  "scoringTokenStacks": {
              |    "tier1": ["tier1 12", "tier1 13", "tier1 11"],
              |    "tier2": ["tier2 22", "tier2 21", "tier2 23"],
              |    "tier3": ["tier3 25", "tier3 27", "tier3 28"],
@@ -579,13 +587,13 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
              |}
              |""".stripMargin.parseJson
 
-        gameEnginePlayingFormat.read(jsonObj) shouldBe expectedPlaying
+        playingFormat.read(jsonObj) shouldBe expectedPlaying
         GameEngineFormats.read(jsonObj) shouldBe expectedPlaying
       }
 
       "write" in {
-        gameEnginePlayingFormat.read(
-          gameEnginePlayingFormat.write(expectedPlaying)
+        playingFormat.read(
+          playingFormat.write(expectedPlaying)
         ) shouldBe expectedPlaying
 
         GameEngineFormats.read(
@@ -598,7 +606,7 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
 
       val expectedGameOver = GameOver(
         playerBoards = List(Player("John", Green), Player("Marry", Yellow), Player("Madonna", Blue)).map(_.initBoard),
-        forestBlocks = Nil
+        blocks = Nil
       )
 
       "read" in {
@@ -611,17 +619,17 @@ class JsonFormatsSpec extends FreeSpec with Matchers {
              |{
              |  "state": "over",
              |  "playerBoards": ${expectedGameOver.playerBoards.map(playerBoard => playerBoardFormat.write(playerBoard)).toJson},
-             |  "forestBlocks": ${expectedGameOver.forestBlocks.map(forestBlock => forestBlockFormat.write(forestBlock)).toJson}
+             |  "blocks": ${expectedGameOver.blocks.map(forestBlock => blockFormat.write(forestBlock)).toJson}
              |}
              |""".stripMargin.parseJson
 
-        gameEngineOverFormat.read(jsonObj) shouldBe expectedGameOver
+        gameOverFormat.read(jsonObj) shouldBe expectedGameOver
         GameEngineFormats.read(jsonObj) shouldBe expectedGameOver
       }
 
       "write" in {
-        gameEngineOverFormat.read(
-          gameEngineOverFormat.write(expectedGameOver)
+        gameOverFormat.read(
+          gameOverFormat.write(expectedGameOver)
         ) shouldBe expectedGameOver
 
         GameEngineFormats.read(
