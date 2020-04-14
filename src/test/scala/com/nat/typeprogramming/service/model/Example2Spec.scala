@@ -212,5 +212,15 @@ class Example2Spec extends FreeSpec with Matchers {
         ) shouldBe Right(())
       }
     }
+
+    "activatePremiumAccount" - {
+      "should become correct premium account" in {
+        val date365DaysFromNow = Date.from(Instant.now().plus(Duration.ofDays(365)))
+        activatePremiumAccount(
+          VerifiedAccount("John", "john@example.com"),
+          date365DaysFromNow
+        ) shouldBe PremiumAccount("John", "john@example.com", date365DaysFromNow)
+      }
+    }
   }
 }
