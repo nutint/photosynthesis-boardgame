@@ -43,6 +43,13 @@ object Example2 {
         case _ => Left("Unable to deactivate verified account")
       }
     }
+
+    def activatePremiumFeature(account: Account, premiumExpireDate: Date): Either[String, Account] =
+      account.accountStatus match {
+        case Verified => Right(account.copy(accountStatus = Premium, premiumExpireDate = premiumExpireDate))
+        case NonVerified => Left("Unable to activate premium feature to non-verified account")
+        case Premium => Left("This account is already premium account")
+      }
   }
 
   object TypeExample {

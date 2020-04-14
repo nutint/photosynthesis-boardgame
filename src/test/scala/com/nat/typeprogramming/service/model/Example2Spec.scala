@@ -118,6 +118,32 @@ class Example2Spec extends FreeSpec with Matchers {
         ) shouldBe Right(())
       }
     }
+
+    "activatePremiumAccount" - {
+
+      val date365DaysFromNow = Date.from(Instant.now().plus(Duration.ofDays(365)))
+      "should fail if the account is non-verified account" in {
+        activatePremiumFeature(
+          Account("John", "john@example.com", NonVerified, new Date(), new Date),
+          date365DaysFromNow
+        ) shouldBe Left("Unable to activate premium feature to non-verified account")
+      }
+
+      "should fail if the account is already premium" in {
+        activatePremiumFeature(
+          Account("John", "john@example.com", Premium, new Date(), new Date),
+          date365DaysFromNow
+        ) shouldBe Left("This account is already premium account")
+      }
+
+      "should success if the account is a verified account" in {
+        val john = Account("John", "john@example.com", Verified, new Date(), new Date)
+        activatePremiumFeature(
+          john,
+          date365DaysFromNow
+        ) shouldBe Right(john.copy(accountStatus = Premium, premiumExpireDate = date365DaysFromNow))
+      }
+    }
   }
 
   "TypeExample" - {
