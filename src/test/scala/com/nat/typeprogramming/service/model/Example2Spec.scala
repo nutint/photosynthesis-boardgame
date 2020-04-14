@@ -9,11 +9,11 @@ import org.scalatest.prop.TableDrivenPropertyChecks._
 class Example2Spec extends FreeSpec with Matchers {
 
   /**
-   * REQ-03
+   * REQ-04
    * User Story
-   * As a Business Owner
-   * I want NonVerified account which inactive for 1 year to be Inactive
-   * So I can save the operation cost
+   * As a Verified Member
+   * I want to become Premium member
+   * So I can access premium feature
    */
 
   "AttributeExample" - {
