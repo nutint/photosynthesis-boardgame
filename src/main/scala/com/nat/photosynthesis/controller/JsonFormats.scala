@@ -34,7 +34,7 @@ object JsonFormats {
     }
   }
 
-  implicit object BoardLocationTierFormat extends JsonFormat[LocationTier] {
+  implicit object LocationTierFormat extends JsonFormat[LocationTier] {
     override def read(json: JsValue): LocationTier = json match {
       case JsString(strVal) => strVal.trim.toLowerCase match {
         case "tier1" => LocationTier1$
@@ -54,7 +54,7 @@ object JsonFormats {
     })
   }
 
-  implicit object DistanceFormat extends JsonFormat[Displacement] {
+  implicit object DisplacementFormat extends JsonFormat[Displacement] {
     val errorMsg = "invalid distance value: expected (same, differentline, front x, rear x)"
     override def read(json: JsValue): Displacement = json match {
       case JsString(strVal) =>
@@ -82,7 +82,7 @@ object JsonFormats {
     })
   }
 
-  implicit object PlantItemFormat extends JsonFormat[Plant] {
+  implicit object PlantFormat extends JsonFormat[Plant] {
     val errorMsg = "invalid plant item value: expected example 'green seed', 'yellow medium-tree', 'blue cooleddown-medium-tree"
     override def read(json: JsValue): Plant = json match {
       case JsString(strVal) => strVal.trim.toLowerCase.split(" ").map(_.trim).toList match {
@@ -121,7 +121,7 @@ object JsonFormats {
     }
   }
 
-  implicit object TokenFormat extends JsonFormat[ScoringToken] {
+  implicit object ScoringTokenFormat extends JsonFormat[ScoringToken] {
     val errorMsg = "invalid token value: expected example 'tier1 20', 'tier2 20', 'tier4 50'"
     override def read(json: JsValue): ScoringToken = json match {
       case JsString(strVal) => strVal.trim.toLowerCase.split(" ").map(_.trim).toList match {
@@ -183,18 +183,18 @@ object JsonFormats {
     }
   }
 
-  implicit val boardLocationFormat = jsonFormat3(Location.apply)
+  implicit val locationFormat = jsonFormat3(Location.apply)
   implicit val playerFormat = jsonFormat2(Player.apply)
   implicit def storeSpaceFormat[A<:Plant] = jsonFormat2(StoreSpace.apply[A])
   implicit val plantStoreFormat = jsonFormat5(PlantStore.apply)
   implicit val playerBoardFormat = jsonFormat5(PlayerBoard.apply)
-  implicit val tokenStockFormat = jsonFormat4(TokenStock.apply)
-  implicit val forestBlockFormat = jsonFormat2(Block.apply)
+  implicit val scoringTokenStacks = jsonFormat4(ScoringTokenStacks.apply)
+  implicit val blockFormat = jsonFormat2(Block.apply)
 
-  implicit val gameEngineRegistrationStateFormat = jsonFormat2(Registration.apply)
-  implicit val gameEnginePlacingFirst2TreesStateFormat = jsonFormat4(SettingUp.apply)
-  implicit val gameEnginePlayingFormat = jsonFormat7(Playing.apply)
-  implicit val gameEngineOverFormat = jsonFormat2(GameOver.apply)
+  implicit val registrationFormat = jsonFormat2(Registration.apply)
+  implicit val settingUpFormat = jsonFormat4(SettingUp.apply)
+  implicit val playingFormat = jsonFormat7(Playing.apply)
+  implicit val gameOverFormat = jsonFormat2(GameOver.apply)
 
   implicit object GameEngineFormats extends JsonFormat[GameEngine] {
     case class GameEngineStateDetector(state: String)
@@ -202,20 +202,20 @@ object JsonFormats {
 
     override def write(obj: GameEngine): JsValue = {
       val (json, state) = (obj match {
-        case ge: Registration => (gameEngineRegistrationStateFormat.write(ge), "registration")
-        case ge: SettingUp => (gameEnginePlacingFirst2TreesStateFormat.write(ge), "settingup")
-        case ge: Playing => (gameEnginePlayingFormat.write(ge), "playing")
-        case ge: GameOver => (gameEngineOverFormat.write(ge), "over")
+        case ge: Registration => (registrationFormat.write(ge), "registration")
+        case ge: SettingUp => (settingUpFormat.write(ge), "settingup")
+        case ge: Playing => (playingFormat.write(ge), "playing")
+        case ge: GameOver => (gameOverFormat.write(ge), "over")
       })
       JsObject(json.asJsObject.fields + ("state" -> JsString(state)))
     }
 
     override def read(json: JsValue): GameEngine = gesdFormat.read(json) match {
       case GameEngineStateDetector(state) => state.trim.toLowerCase() match {
-        case "registration" => gameEngineRegistrationStateFormat.read(json)
-        case "settingup" => gameEnginePlacingFirst2TreesStateFormat.read(json)
-        case "playing" => gameEnginePlayingFormat.read(json)
-        case "over" => gameEngineOverFormat.read(json)
+        case "registration" => registrationFormat.read(json)
+        case "settingup" => settingUpFormat.read(json)
+        case "playing" => playingFormat.read(json)
+        case "over" => gameOverFormat.read(json)
       }
     }
   }
