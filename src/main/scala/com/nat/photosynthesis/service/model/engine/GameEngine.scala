@@ -74,11 +74,11 @@ case class SettingUp(
       if(allPlaced2Trees) {
         val calculatedScoreBoard = playerBoards
           .map { board =>
-            val playerBoardScore = blocks
+            val playerLightPoints = blocks
               .filter(_.plantItem.plantType == board.player.plantType)
               .map(_.calculateScore(SunLocation0, blocks))
               .sum
-            board.copy(lightPoints = playerBoardScore)
+            board.copy(lightPoints = playerLightPoints)
           }
         Right(Playing(
           activePlayerPosition = 0,
@@ -119,11 +119,11 @@ case class Playing(
     val nextMoveActivePlayer = if(isRoundEnded) nextMoveStartingPlayer else nextActivePlayerPosition
     val nextMoveSunLocation = if(isRoundEnded) sunLocation.next else sunLocation
 
-    val isDayEnded = sunLocation.next == SunLocation0
-    val nextMoveDay = if(isDayEnded) day + 1 else day
-    val isGameEnded = day + 1 == lastDay
+    val isTheEndOfTheDay = sunLocation.next == SunLocation0
+    val nextMoveDay = if(isTheEndOfTheDay) day + 1 else day
+    val isFinalDay = day + 1 == lastDay
 
-    if(isGameEnded && isDayEnded)
+    if(isTheEndOfTheDay && isFinalDay)
       GameOver(playerBoards, blocks)
     else
       copy(
@@ -134,24 +134,24 @@ case class Playing(
       )
   }
 
-  def playerSeedPlant(player: Player, motherLocation: Location, seedLocation: Location): Either[String,Playing] = {
+  def playerSeedPlant(player: Player, plantLocation: Location, seedLocation: Location): Either[String,Playing] = {
     val sunLocations = List(SunLocation0, SunLocation1, SunLocation2)
     if(!playerBoards.exists(_.player == player)) {
       Left("Unable to seed: Player not found")
     } else if (blocks.exists(_.location == seedLocation)) {
       Left("Unable to seed: Target location is not empty")
-    } else if (!sunLocations.exists(sl => motherLocation.isSameLine(seedLocation, sl))) {
+    } else if (!sunLocations.exists(sl => plantLocation.isSameLine(seedLocation, sl))) {
       Left("Unable to seed: Not the same line")
     } else {
       blocks
-        .find(fb => fb.location == motherLocation)
+        .find(fb => fb.location == plantLocation)
         .map {
           case Block(_, plantItem) if plantItem.plantType == player.plantType => plantItem match {
-            case _: CoolingDownPlant => Left("Unable to seed: Plant is in cool down")
+            case _: CoolingDownPlant => Left("Unable to seed: Plant is in cooling down")
             case sa: SeedAble =>
-              if(motherLocation.inRadius(seedLocation, plantItem.height)) {
+              if(plantLocation.inRadius(seedLocation, plantItem.height)) {
                 val updatedForestBlocks = blocks.map {
-                  case fb @ Block(bl, pi) if bl == motherLocation && pi.plantType == player.plantType => fb.copy(plantItem = sa.seed)
+                  case fb @ Block(bl, pi) if bl == plantLocation && pi.plantType == player.plantType => fb.copy(plantItem = sa.seed)
                   case a => a
                 }
                 Right(copy(blocks = updatedForestBlocks :+ Block(seedLocation, Seed(player.plantType))))
@@ -166,26 +166,26 @@ case class Playing(
     }
   }
 
-  def grow(player: Player, bl: Location): Either[String,Playing] =
+  def grow(player: Player, location: Location): Either[String,Playing] =
     blocks
-      .find(_.location == bl )
+      .find(_.location == location )
       .map {
-        case fb: Block if !fb.isOwnedBy(player) => Left(s"Not own by player ${player.name}")
-        case fb: Block if fb.isOwnedBy(player) => fb.plantItem match {
+        case block: Block if !block.isOwnedBy(player) => Left(s"Not own by player ${player.name}")
+        case block: Block if block.isOwnedBy(player) => block.plantItem match {
           case _: CoolingDownPlant => Left("Cooling down")
           case _: LargeTree => Left("Already large tree")
-          case ga: GrowAble =>
+          case growAble: GrowAble =>
             playerBoards
               .find(_.player == player)
-              .map(_.withdrawResource(ga.growResource)) match {
-              case None => Left("Player not found")
-              case Some(e) => e
-                .map { newPb =>
-                  copy(
-                    playerBoards = playerBoards.map(opb => if(opb.player == player) newPb else opb),
-                    blocks = blocks.map(fb => if(fb.location == bl) fb.copy(plantItem = ga.grow) else fb )
-                  )
-                }
+              .map(_.withdrawResource(growAble.growResource)) match {
+                case None => Left("Player not found")
+                case Some(e) => e
+                  .map { newPb =>
+                    copy(
+                      playerBoards = playerBoards.map(opb => if(opb.player == player) newPb else opb),
+                      blocks = blocks.map(fb => if(fb.location == location) fb.copy(plantItem = growAble.grow) else fb )
+                    )
+                  }
             }
         }
       }

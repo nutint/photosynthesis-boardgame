@@ -309,7 +309,7 @@ class GameEngineSpec extends FreeSpec with Matchers
         val seedLocation = Location(0, 0, 0)
         initialState
           .copy(blocks = forestBlocks, playerBoards = playerBoards)
-          .playerSeedPlant(john, motherLocation, seedLocation) shouldBe Left("Unable to seed: Plant is in cool down")
+          .playerSeedPlant(john, motherLocation, seedLocation) shouldBe Left("Unable to seed: Plant is in cooling down")
       }
       "should fail if the the mother plant is still cool down" in {
         val john = Player("John", Blue)
@@ -319,7 +319,7 @@ class GameEngineSpec extends FreeSpec with Matchers
         val seedLocation = Location(0, 0, 0)
         initialState
           .copy(blocks = forestBlocks, playerBoards = playerBoards)
-          .playerSeedPlant(john, motherLocation, seedLocation) shouldBe Left("Unable to seed: Plant is in cool down")
+          .playerSeedPlant(john, motherLocation, seedLocation) shouldBe Left("Unable to seed: Plant is in cooling down")
       }
       "should fail if the mother plant is seed" in {
         val john = Player("John", Blue)
