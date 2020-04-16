@@ -2,23 +2,23 @@
 scale 350 width
 
 state registration : players: List[Player]
-state registration : tokenStock: TokenStock
+state registration : scoringTokenStacks: ScoringTokenStacks
 
 state settingUp : plantingTreePlayer: Int
 state settingUp : playerBoards: List[PlayerBoard]
-state settingUp : forestBlocks: List[Block]
-state settingUp : tokenStock: TokenStock
+state settingUp : blocks: List[Block]
+state settingUp : scoringTokenStacks: ScoringTokenStacks
 
 state playing : actionPlayer: Int,
-state playing : startingPlayer: Int,
+state playing : firstPlayerTokenPosition: Int,
 state playing : sunLocation: SunLocation,
 state playing : day: Int,
 state playing : playerBoards: List[PlayerBoard],
-state playing : forestBlocks: List[Block],
-state playing : tokenStock: TokenStock
+state playing : blocks: List[Block],
+state playing : scoringTokenStacks: TokenStock
 
 state gameOver : playerBoards: List[PlayerBoard]
-state gameOver : forestBlocks: List[Block]
+state gameOver : blocks: List[Block]
 
 state registration as "Registration"
 state settingUp as "Setting Up"
