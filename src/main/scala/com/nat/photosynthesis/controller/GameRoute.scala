@@ -1,5 +1,6 @@
 package com.nat.photosynthesis.controller
 
+import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import com.nat.photosynthesis.service.GameService
 
@@ -9,6 +10,8 @@ class GameRoute(gameService: GameService) {
     get {
       val games = gameService.getGames
       onComplete(games)(_ => complete("[]"))
+    } ~ {
+      complete("created")
     }
 
 }
