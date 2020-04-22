@@ -19,9 +19,8 @@ class GameRouteSpec extends FreeSpec with Matchers with ScalatestRouteTest with 
   "/" - {
     "GET" - {
       "should returns empty array if there is no active games" in {
-        val gameService = new GameService {
-          override def getGames: Future[Either[String, List[GameEngine]]] = Future.successful(Right(List()))
-        }
+        val gameService = mock[GameService]
+        when(gameService.getGames).thenReturn(Future.successful(Right(List())))
         val gameRoute = new GameRoute(gameService)
         Get() ~> gameRoute.route ~> check {
           responseAs[String] shouldEqual "[]"
