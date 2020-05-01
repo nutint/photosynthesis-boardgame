@@ -7,9 +7,9 @@ import com.nat.photosynthesis.service.repository.GameRepository
 
 import scala.concurrent.Future
 
-class GameService(gameRepository: GameRepository) {
+class GameService[F[_]](gameRepository: GameRepository) {
 
-  def getGames: Future[Either[String, List[GameEngine]]] = ???
+  def getGames: F[Either[String, List[GameEngine]]] = ???
 
-  def createGame(players: List[Player]): Future[Either[String, Identifiable[GameEngine]]] = ???
+  def createGame(players: List[Player]): F[Either[String, Identifiable[GameEngine]]] = ???
 }
