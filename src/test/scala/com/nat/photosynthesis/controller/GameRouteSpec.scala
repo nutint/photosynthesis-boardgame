@@ -6,6 +6,7 @@ import akka.http.scaladsl.model.MediaTypes.`text/event-stream`
 import akka.http.scaladsl.model.sse.ServerSentEvent
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import akka.stream.scaladsl.{Sink, Source}
+import akka.util.ByteString
 import cats.effect.IO
 import com.nat.model.Identifiable
 import com.nat.photosynthesis.service.GameService
@@ -74,7 +75,8 @@ class GameRouteSpec
       val route = complete(Source(events))
       Get() ~> route ~> check {
         mediaType shouldBe `text/event-stream`
-        Await.result(responseEntity.dataBytes.runWith(Sink.seq), 3.seconds) shouldBe events.map(_.data)
+        val eventualStrings = responseEntity.dataBytes.runWith(Sink.seq)
+        Await.result(eventualStrings, 3.seconds) shouldBe events.map(_.data).map(d => ByteString(s"data:$d\n\n"))
       }
     }
     "GET" - {
