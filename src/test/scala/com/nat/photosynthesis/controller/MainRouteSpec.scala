@@ -1,12 +1,12 @@
 package com.nat.photosynthesis.controller
 
-import akka.http.scaladsl.testkit.ScalatestRouteTest
-import org.scalatest.mockito.MockitoSugar
-import org.scalatest.{FreeSpec, Matchers}
-import org.mockito.Mockito._
 import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.testkit.ScalatestRouteTest
+import org.mockito.MockitoSugar
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
 
-class MainRouteSpec extends FreeSpec with Matchers with ScalatestRouteTest with MockitoSugar {
+class MainRouteSpec extends AnyFreeSpec with Matchers with ScalatestRouteTest with MockitoSugar {
 
   "/api/v1/games" - {
     "should route to games route" in {

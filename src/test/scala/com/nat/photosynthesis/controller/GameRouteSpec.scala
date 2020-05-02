@@ -12,15 +12,15 @@ import com.nat.model.Identifiable
 import com.nat.photosynthesis.service.GameService
 import com.nat.photosynthesis.service.model._
 import com.nat.photosynthesis.service.model.engine.{GameEngine, Registration}
-import org.mockito.Mockito._
-import org.scalatest.mockito.MockitoSugar
-import org.scalatest.{FreeSpec, Matchers}
+import org.mockito.MockitoSugar
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
 
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 
 class GameRouteSpec
-  extends FreeSpec
+  extends AnyFreeSpec
     with Matchers
     with ScalatestRouteTest
     with MockitoSugar {

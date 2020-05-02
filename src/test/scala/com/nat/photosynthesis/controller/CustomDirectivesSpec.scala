@@ -4,11 +4,12 @@ import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives.complete
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import cats.effect.IO
-import org.scalatest.mockito.MockitoSugar
-import org.scalatest.{FreeSpec, Matchers}
+import org.mockito.MockitoSugar
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
 
 class CustomDirectivesSpec
-  extends FreeSpec
+  extends AnyFreeSpec
     with Matchers
     with ScalatestRouteTest
     with MockitoSugar {

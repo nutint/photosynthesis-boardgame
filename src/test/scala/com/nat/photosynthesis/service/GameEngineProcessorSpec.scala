@@ -2,11 +2,12 @@ package com.nat.photosynthesis.service
 
 import com.nat.photosynthesis.service.model.{engine, _}
 import com.nat.photosynthesis.service.model.engine.{GameOver, Registration}
-import org.scalatest.mockito.MockitoSugar
-import org.scalatest.{FreeSpec, Matchers}
+import org.mockito.MockitoSugar
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
 
 class GameEngineProcessorSpec
-  extends FreeSpec
+  extends AnyFreeSpec
     with Matchers
     with MockitoSugar
 {
