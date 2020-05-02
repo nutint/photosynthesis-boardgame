@@ -1,26 +1,39 @@
 package com.nat.photosynthesis.experiment
 
-import akka.actor.ActorSystem
-import akka.testkit.{ImplicitSender, TestActors, TestKit}
-import org.scalatest.BeforeAndAfterAll
-import org.scalatest.matchers.should.Matchers
+import scala.concurrent.duration._
+import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
+import akka.actor.testkit.typed.scaladsl.ManualTime
+import akka.actor.testkit.typed.scaladsl.TestProbe
+import akka.actor.typed.scaladsl.Behaviors
 import org.scalatest.wordspec.AnyWordSpecLike
 
 class AkkaStreamSpec
-  extends TestKit(ActorSystem("AkkaStreamSpec"))
-    with AnyWordSpecLike
-    with Matchers
-    with ImplicitSender
-    with BeforeAndAfterAll {
+  extends ScalaTestWithActorTestKit(ManualTime.config) with AnyWordSpecLike {
 
-  override def afterAll(): Unit =
-    TestKit.shutdownActorSystem(system)
+  val manualTime: ManualTime = ManualTime()
 
-  "An echo actor" must {
-    "send back message unchanged" in {
-      val echo = system.actorOf(TestActors.echoActorProps)
-      echo ! "Hello world"
-      expectMsg("Hello world")
+  "A timer" must {
+    "schedule non-repeated ticks" in {
+      case object Tick
+      case object Tock
+
+      val probe = TestProbe[Tock.type]()
+      val behavior = Behaviors.withTimers[Tick.type] { timer =>
+        timer.startSingleTimer("T", Tick, 10.millis)
+        Behaviors.receiveMessage { _ =>
+          probe.ref ! Tock
+          Behaviors.same
+        }
+      }
+
+      spawn(behavior)
+
+      manualTime.expectNoMessageFor(9.millis, probe)
+
+      manualTime.timePasses(2.millis)
+      probe.expectMessage(Tock)
+
+      manualTime.expectNoMessageFor(10.seconds, probe)
     }
   }
 }

@@ -2,7 +2,8 @@ name := "PhotoSynthesis"
 
 version := "0.1"
 
-scalaVersion := "2.12.8"
+val scalaMajorVersion = "2.12"
+scalaVersion := s"$scalaMajorVersion.8"
 
 val akkaStreamVersion = "2.6.5"
 val akkaHttpVersion = "10.1.11"
@@ -12,6 +13,7 @@ val mockitoVersion = "1.14.0"
 
 libraryDependencies ++= List(
   "com.typesafe.akka" %% "akka-actor-typed" % akkaVersion,
+  "com.typesafe.akka" %% "akka-actor-testkit-typed" % akkaVersion,
   "com.typesafe.akka" %% "akka-testkit" % akkaVersion % Test,
   "com.typesafe.akka" %% "akka-http"   % akkaHttpVersion,
   "com.typesafe.akka" %% "akka-stream" % akkaStreamVersion,
@@ -23,5 +25,5 @@ libraryDependencies ++= List(
   "org.typelevel" %% "cats-effect-laws" % "2.1.3" % "test",
   "org.scalactic" %% "scalactic" % scalaTestVersion,
   "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
-  "org.mockito" % s"mockito-scala_2.12" % mockitoVersion % "test"
+  "org.mockito" % s"mockito-scala_$scalaMajorVersion" % mockitoVersion % "test"
 )
