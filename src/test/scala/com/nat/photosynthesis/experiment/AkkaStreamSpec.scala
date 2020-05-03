@@ -11,7 +11,7 @@ import org.scalatest.wordspec.AnyWordSpecLike
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
-import scala.util.Try
+import scala.util.{Success, Try}
 
 class AkkaStreamSpec
   extends AnyWordSpecLike
@@ -19,30 +19,52 @@ class AkkaStreamSpec
     with Matchers {
 
   val testKit = ActorTestKit()
+  import testKit._
 
-  override def afterAll(): Unit = testKit.shutdownTestKit()
+  override def afterAll(): Unit = shutdownTestKit()
 
   "Echo" must {
     import AkkaStreamSpec._
     "pong if pinger ping" in {
-      val pinger = testKit.spawn(Echo(), "ping")
-      val probe = testKit.createTestProbe[Echo.Pong]()
+      val pinger = spawn(Echo(), "ping")
+      val probe = createTestProbe[Echo.Pong]()
       pinger ! Echo.Ping("Hello", probe.ref)
       probe.expectMessage(Echo.Pong("Hello"))
     }
 
     "be able to stop actors under test" in {
-      val probe = testKit.createTestProbe[Echo.Pong]()
+      val probe = createTestProbe[Echo.Pong]()
 
-      val pinger1 = testKit.spawn(Echo(), "pinger")
+      val pinger1 = spawn(Echo(), "pinger")
       pinger1 ! Echo.Ping("Hello", probe.ref)
       probe.expectMessage(Echo.Pong("Hello"))
-      testKit.stop(pinger1)
+      stop(pinger1)
 
-      val pinger2 = testKit.spawn(Echo(), "pinger")
+      val pinger2 = spawn(Echo(), "pinger")
       pinger2 ! Echo.Ping("Hello", probe.ref)
       probe.expectMessage(Echo.Pong("Hello"))
-      testKit.stop(pinger2, 10 seconds)
+      stop(pinger2, 10 seconds)
+    }
+  }
+
+  "MockedBehavior" must {
+    import AkkaStreamSpec.MockedBehavior._
+    "support observing mocked behavior" in {
+      val mockedBehavior = Behaviors.receiveMessage[Message] { msg =>
+        msg.replyTo ! Success(msg.i)
+        Behaviors.same
+      }
+      val probe = createTestProbe[Message]()
+      val mockedPublisher = spawn(Behaviors.monitor(probe.ref, mockedBehavior))
+
+      val producer = new Producer(mockedPublisher)
+      val messages = 3
+      producer.produce(messages)
+
+      for ( i <- 0 until messages) {
+        val msg = probe.expectMessageType[Message]
+        msg.i shouldBe i
+      }
     }
   }
 }
