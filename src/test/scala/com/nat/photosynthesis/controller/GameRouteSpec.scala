@@ -16,7 +16,6 @@ class GameRouteSpec extends FreeSpec with Matchers with ScalatestRouteTest with 
 
   import spray.json._
   import DefaultJsonProtocol._
-  import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
   import GameRouteSpec._
 
   "/" - {
@@ -52,6 +51,23 @@ class GameRouteSpec extends FreeSpec with Matchers with ScalatestRouteTest with 
           HttpEntity(ContentTypes.`application/json`, players.toJson.compactPrint)
         ) ~> gameRoute.route ~> check {
           status shouldBe StatusCodes.Created
+        }
+      }
+
+      "should return error when service return error" in {
+        val gameService = mock[GameService]
+        val players = List(PlayerJsonEntity("John", "Green"), PlayerJsonEntity("Linda", "Yellow"))
+        val servicePlayers = List(Player("John", Green), Player("Linda", Yellow))
+        when(gameService.createGame(servicePlayers)).thenReturn(Future.successful(Left("Error occurred")))
+
+        val gameRoute = new GameRoute(gameService)
+
+        Post(
+          "/",
+          HttpEntity(ContentTypes.`application/json`, players.toJson.compactPrint)
+        ) ~> gameRoute.route ~> check {
+          status shouldBe StatusCodes.BadRequest
+          responseAs[String] shouldBe "Error occurred"
         }
       }
     }

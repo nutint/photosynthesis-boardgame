@@ -33,6 +33,7 @@ class GameRoute(gameService: GameService) {
                 Created,
                 "Created")
             ))
+            case Left(errorMessage) => complete((BadRequest, errorMessage))
           }
         }
       }
