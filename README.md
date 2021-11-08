@@ -13,3 +13,18 @@ please visit [here](https://ilo307.com/public/pdf/BO-PHOTO-002_RULES.PDF)
   ```
 
 
+# Installation
+- git clone
+- Install Intellij and Scala plugin from Intellij marketplace
+- Restart Intellij
+- Open Intellij and new project with existing sources
+  - Import project with sbt
+  - setup Import project  
+    - download sbt sources.
+    - use sbt shell for imports
+    - use sbt shell for builds
+    - select project JDK as Java 1.8.xxx (Scala run on top java jvm)
+- validate installation by running unit test suite.
+
+
+
