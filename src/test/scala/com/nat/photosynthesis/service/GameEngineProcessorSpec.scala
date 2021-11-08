@@ -37,6 +37,16 @@ class GameEngineProcessorSpec
           val anotherJohn = Player("John", Blue)
           gameEngine.processCommand(AddPlayer(anotherJohn)) shouldBe Left("Unable to add player with the same name")
         }
+
+        "should not be able to add player if number of player is 4 already" in {
+          val john = Player("John", Green)
+          val ann = Player("Ann", Yellow)
+          val boy = Player("Boy", Orange)
+          val cat = Player("Cat", Blue)
+          val gameEngine = engine.Registration(john :: ann :: boy :: cat :: Nil, ScoringTokenStacks())
+          val extraPlayer = Player("Dos", Blue)
+          gameEngine.processCommand(AddPlayer(extraPlayer)) shouldBe Left("Unable to add player more than 4")
+        }
       }
 
       "Other State" - {

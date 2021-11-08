@@ -9,7 +9,9 @@ case class Registration(
   scoringTokenStacks: ScoringTokenStacks = ScoringTokenStacks(Nil, Nil, Nil, Nil)
 ) extends GameEngine {
   def addPlayer(player: Player): Either[String, Registration] =
-    if(players.exists(_.plantType == player.plantType)) {
+    if (players.length >= 4) {
+      Left("Unable to add player more than 4")
+    } else if(players.exists(_.plantType == player.plantType)) {
       Left("Unable to add player with same plant type")
     } else if (players.exists(_.name.compareToIgnoreCase(player.name) == 0)) {
       Left("Unable to add player with the same name")
