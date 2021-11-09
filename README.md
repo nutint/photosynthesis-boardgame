@@ -3,7 +3,7 @@ This is backend service for providing the logic of photosynthesis board game, it
 including game registration, game play, scoring system, and end game mechanism
 
 # Game Rules
-please visit [here](https://ilo307.com/public/pdf/BO-PHOTO-002_RULES.PDF)
+please visit [English](https://ilo307.com/public/pdf/BO-PHOTO-002_RULES.PDF) or [Thai](https://siamboardgames.com/errata/photosynthesis-errata/)
 
 # Prerequisites
 - Scala version 2.12.7 or above
